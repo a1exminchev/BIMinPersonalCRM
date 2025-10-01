@@ -5,7 +5,7 @@
     <!-- The output is a Windows executable -->
     <OutputType>WinExe</OutputType>
     <!-- Target .NET 7.0 for Windows desktop applications -->
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <!-- Enable WPF support -->
     <UseWPF>true</UseWPF>
     <!-- Enable nullable reference types for safer code -->

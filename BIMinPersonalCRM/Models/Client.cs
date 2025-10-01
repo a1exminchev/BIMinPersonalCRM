@@ -22,12 +22,12 @@ namespace BIMinPersonalCRM.Models
         ///     Optional contact information such as email or phone number.
         /// </summary>
         public string? ContactInfo { get; set; }
-;
+
         /// <summary>
         ///     Free‑form notes about the client. This can include billing details,
         ///     preferred communication channels, or anything else relevant.
         /// </summary>
         public string? Notes { get; set; }
-;
+
     }
 }

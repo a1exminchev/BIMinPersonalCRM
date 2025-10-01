@@ -24,13 +24,11 @@ namespace BIMinPersonalCRM.Models
         ///     Optional more detailed description.
         /// </summary>
         public string? Description { get; set; }
-;
 
         /// <summary>
         ///     Foreign key referencing the client associated with this task.
         /// </summary>
         public Guid? ClientId { get; set; }
-;
 
         /// <summary>
         ///     The date the task was started. Stored as <see cref="DateTime"/>.
@@ -42,14 +40,12 @@ namespace BIMinPersonalCRM.Models
         ///     ongoing.
         /// </summary>
         public DateTime? EndDate { get; set; }
-;
 
         /// <summary>
         ///     Total number of hours spent on this task. Represented as a
         ///     <see cref="double"/> to allow fractional hours.
         /// </summary>
         public double HoursSpent { get; set; }
-;
 
         /// <summary>
         ///     The total money earned for this task. If hourly billing is used
@@ -57,13 +53,11 @@ namespace BIMinPersonalCRM.Models
         ///     enter the agreed amount manually.
         /// </summary>
         public decimal MoneyEarned { get; set; }
-;
 
         /// <summary>
         ///     Hourly rate used when calculating <see cref="MoneyEarned"/>.
         /// </summary>
         public decimal HourlyRate { get; set; }
-;
 
         /// <summary>
         ///     Computed property used in the UI to display the associated
@@ -71,6 +65,5 @@ namespace BIMinPersonalCRM.Models
         ///     is populated at runtime by the view model.
         /// </summary>
         public string? ClientName { get; set; }
-;
     }
 }

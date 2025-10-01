@@ -2,20 +2,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BIMinPersonalCRM", "BIMinPersonalCRM\\BIMinPersonalCRM.csproj", "{af8eb402-a2d4-4e1f-9cd8-4b87aa5b8c2e}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BIMinPersonalCRM", "BIMinPersonalCRM\BIMinPersonalCRM.csproj", "{AF8EB402-A2D4-4E1F-9CD8-4B87AA5B8C2E}"
 EndProject
 Global
-    GlobalSection(SolutionConfigurationPlatforms) = preSolution
-        Debug|Any CPU = Debug|Any CPU
-        Release|Any CPU = Release|Any CPU
-    EndGlobalSection
-    GlobalSection(ProjectConfigurationPlatforms) = postSolution
-        {af8eb402-a2d4-4e1f-9cd8-4b87aa5b8c2e}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-        {af8eb402-a2d4-4e1f-9cd8-4b87aa5b8c2e}.Debug|Any CPU.Build.0 = Debug|Any CPU
-        {af8eb402-a2d4-4e1f-9cd8-4b87aa5b8c2e}.Release|Any CPU.ActiveCfg = Release|Any CPU
-        {af8eb402-a2d4-4e1f-9cd8-4b87aa5b8c2e}.Release|Any CPU.Build.0 = Release|Any CPU
-    EndGlobalSection
-    GlobalSection(SolutionProperties) = preSolution
-        HideSolutionNode = FALSE
-    EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AF8EB402-A2D4-4E1F-9CD8-4B87AA5B8C2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF8EB402-A2D4-4E1F-9CD8-4B87AA5B8C2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF8EB402-A2D4-4E1F-9CD8-4B87AA5B8C2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF8EB402-A2D4-4E1F-9CD8-4B87AA5B8C2E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 EndGlobal
