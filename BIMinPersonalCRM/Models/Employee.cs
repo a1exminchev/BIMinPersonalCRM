@@ -7,6 +7,11 @@ namespace BIMinPersonalCRM.Models
     public class Employee
     {
         /// <summary>
+        ///     Уникальный идентификатор сотрудника.
+        /// </summary>
+        public int Id { get; set; }
+        
+        /// <summary>
         ///     Полное имя сотрудника.
         /// </summary>
         public string FullName { get; set; } = string.Empty;

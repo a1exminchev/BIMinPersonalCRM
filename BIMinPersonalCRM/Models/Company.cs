@@ -8,6 +8,11 @@ namespace BIMinPersonalCRM.Models
     public class Company
     {
         /// <summary>
+        ///     Уникальный идентификатор компании.
+        /// </summary>
+        public int Id { get; set; }
+        
+        /// <summary>
         ///     Наименование компании.
         /// </summary>
         public string Name { get; set; } = string.Empty;

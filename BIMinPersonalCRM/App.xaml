@@ -2,10 +2,26 @@
 <Application x:Class="BIMinPersonalCRM.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
-        <!-- Define application‑level resources here. For example, brushes or styles
-             that are used across multiple views. Leaving this empty is fine for
-             the initial version. -->
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+
+                <!-- Material Design: базовая тема -->
+                <materialDesign:BundledTheme BaseTheme="Light"
+                                               PrimaryColor="Blue"
+                                               SecondaryColor="LightBlue"/>
+
+                <!-- ВАЖНО: словари контролов -->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+
+                <!-- Твои стили ДОЛЖНЫ быть ПОСЛЕ -->
+                <ResourceDictionary Source="Views/Design/DesignDictionary.xaml" />
+
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
+
 </Application>

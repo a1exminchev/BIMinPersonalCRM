@@ -10,9 +10,24 @@ namespace BIMinPersonalCRM.Models
     public class Order
     {
         /// <summary>
+        ///     Уникальный идентификатор заказа.
+        /// </summary>
+        public int Id { get; set; }
+        
+        /// <summary>
+        ///     Название заказа.
+        /// </summary>
+        public string Name { get; set; } = string.Empty;
+        
+        /// <summary>
         ///     Стоимость заказа ( в рублях ).
         /// </summary>
         public double Price { get; set; }
+        
+        /// <summary>
+        ///     Дата создания заказа.
+        /// </summary>
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         /// <summary>
         ///     Тип программного обеспечения (Revit, Pilot‑BIM, Navisworks и т.п.).
@@ -20,9 +35,9 @@ namespace BIMinPersonalCRM.Models
         public string SoftwareType { get; set; } = string.Empty;
 
         /// <summary>
-        ///     Список путей к прикреплённым файлам ( договоры, ТЗ, счета и т.д. ).
+        ///     Список прикреплённых файлов ( договоры, ТЗ, счета и т.д. ).
         /// </summary>
-        public List<string> AttachedFiles { get; set; } = new();
+        public List<FileAttachment> AttachedFiles { get; set; } = new();
 
         /// <summary>
         ///     Сотрудники компании, с которыми велась работа по заказу.

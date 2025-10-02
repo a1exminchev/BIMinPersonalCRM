@@ -1,0 +1,105 @@
+<Window x:Class="BIMinPersonalCRM.Views.Dialogs.AddCompanyDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:customControls="clr-namespace:BIMinPersonalCRM.Controls"
+        Title="Добавить компанию" 
+        Height="500" Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+    
+    <materialDesign:Card Margin="16" Padding="24">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Заголовок -->
+            <TextBlock Grid.Row="0" 
+                       Text="Новая компания" 
+                       Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,24"/>
+
+            <!-- Форма -->
+            <StackPanel Grid.Row="1">
+                
+                <!-- Название -->
+                <TextBox materialDesign:HintAssist.Hint="Название компании"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                         MaxLength="100"
+                         Margin="0,0,0,16"/>
+
+                <!-- Телефон -->
+                <TextBox materialDesign:HintAssist.Hint="Телефон"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
+                         MaxLength="20"
+                         Margin="0,0,0,16"/>
+
+                <!-- Сайт -->
+                <TextBox materialDesign:HintAssist.Hint="Сайт"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         Text="{Binding Website, UpdateSourceTrigger=PropertyChanged}"
+                         MaxLength="200"
+                         Margin="0,0,0,16"/>
+
+                <!-- Логотип -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="Логотип" 
+                               Style="{StaticResource MaterialDesignBody1TextBlock}"
+                               Margin="0,0,0,8"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBox Grid.Column="0"
+                                 materialDesign:HintAssist.Hint="Путь к файлу логотипа"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 Text="{Binding LogoPath, UpdateSourceTrigger=PropertyChanged}"
+                                 IsReadOnly="True"/>
+                        
+                        <Button Grid.Column="1"
+                                Content="Выбрать"
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Margin="8,0,0,0"
+                                Click="SelectLogo_Click"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Цвет карточки -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="Цвет карточки" 
+                               Style="{StaticResource MaterialDesignBody1TextBlock}"
+                               Margin="0,0,0,8"/>
+                    <customControls:ColorPickerControl SelectedColorText="{Binding CardColor, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+
+            </StackPanel>
+
+            <!-- Кнопки -->
+            <StackPanel Grid.Row="2" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Right"
+                        Margin="0,24,0,0">
+                
+                <Button Content="Отмена" 
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Click="Cancel_Click"
+                        Margin="0,0,16,0"
+                        MinWidth="100"/>
+                
+                <Button Content="Добавить" 
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Click="Add_Click"
+                        MinWidth="100"/>
+            </StackPanel>
+
+        </Grid>
+    </materialDesign:Card>
+</Window>
