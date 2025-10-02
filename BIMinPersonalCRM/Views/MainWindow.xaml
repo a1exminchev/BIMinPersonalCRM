@@ -2,75 +2,75 @@
 <Window x:Class="BIMinPersonalCRM.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:viewModels="clr-namespace:BIMinPersonalCRM.ViewModels"
         mc:Ignorable="d"
-        Title="BIMin Personal CRM" Height="600" Width="900">
+        Title="BIMin personal CRM"
+        Height="600"
+        Width="1000">
     <Window.DataContext>
         <viewModels:MainViewModel />
     </Window.DataContext>
     <Grid>
         <TabControl>
-            <!-- Tasks Tab -->
-            <TabItem Header="Tasks">
+            <TabItem Header="Компании">
                 <DockPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
-                        <Button Content="Add Task"
-                                Margin="0,0,5,0"
-                                Command="{Binding AddTaskCommand}" />
-                        <Button Content="Save"
-                                Margin="0,0,5,0"
-                                Command="{Binding SaveCommand}" />
-                        <Button Content="Load"
-                                Command="{Binding LoadCommand}" />
+                        <Button Content="Добавить компанию" Command="{Binding AddCompanyCommand}" Margin="0,0,5,0" />
+                        <Button Content="Сохранить" Command="{Binding SaveCommand}" Margin="0,0,5,0" />
+                        <Button Content="Загрузить" Command="{Binding LoadCommand}" />
                     </StackPanel>
-                    <DataGrid ItemsSource="{Binding Tasks}"
-                              SelectedItem="{Binding SelectedTask}"
-                              AutoGenerateColumns="False"
-                              CanUserAddRows="True"
-                              Margin="5"
-                              IsReadOnly="False">
+                    <DataGrid ItemsSource="{Binding Companies}" SelectedItem="{Binding SelectedCompany}" AutoGenerateColumns="False" Margin="5">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Title" Binding="{Binding Title, Mode=TwoWay}" Width="*" />
-                            <DataGridTextColumn Header="Client" Binding="{Binding ClientName, Mode=TwoWay}" Width="*" />
-                            <DataGridTextColumn Header="Start Date" Binding="{Binding StartDate, Mode=TwoWay, StringFormat={}{0:yyyy-MM-dd}}" Width="*" />
-                            <DataGridTextColumn Header="End Date" Binding="{Binding EndDate, Mode=TwoWay, StringFormat={}{0:yyyy-MM-dd}}" Width="*" />
-                            <DataGridTextColumn Header="Hours" Binding="{Binding HoursSpent, Mode=TwoWay}" Width="*" />
-                            <DataGridTextColumn Header="Earnings" Binding="{Binding MoneyEarned, Mode=TwoWay}" Width="*" />
-                            <DataGridTextColumn Header="Hourly Rate" Binding="{Binding HourlyRate, Mode=TwoWay}" Width="*" />
+                            <DataGridTextColumn Header="Название" Binding="{Binding Name}" />
+                            <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" />
+                            <DataGridTextColumn Header="Сайт" Binding="{Binding Website}" />
+                            <DataGridTextColumn Header="Средняя прибыльность" Binding="{Binding AverageProfitability}" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>
             </TabItem>
-
-            <!-- Clients Tab -->
-            <TabItem Header="Clients">
+            <TabItem Header="Заказы">
                 <DockPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
-                        <Button Content="Add Client" Command="{Binding AddClientCommand}" />
+                        <Button Content="Добавить заказ" Command="{Binding AddOrderCommand}" />
                     </StackPanel>
-                    <DataGrid ItemsSource="{Binding Clients}"
-                              SelectedItem="{Binding SelectedClient}"
-                              AutoGenerateColumns="False"
-                              Margin="5"
-                              IsReadOnly="False">
+                    <DataGrid ItemsSource="{Binding Orders}" SelectedItem="{Binding SelectedOrder}" AutoGenerateColumns="False" Margin="5">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=TwoWay}" Width="*" />
-                            <DataGridTextColumn Header="Contact" Binding="{Binding ContactInfo, Mode=TwoWay}" Width="*" />
-                            <DataGridTextColumn Header="Notes" Binding="{Binding Notes, Mode=TwoWay}" Width="*" />
+                            <DataGridTextColumn Header="Компания" Binding="{Binding Company.Name}" />
+                            <DataGridTextColumn Header="Цена" Binding="{Binding Price}" />
+                            <DataGridTextColumn Header="Тип ПО" Binding="{Binding SoftwareType}" />
+                            <DataGridTextColumn Header="Статус" Binding="{Binding ExecutionStatus}" />
+                            <DataGridTextColumn Header="Налог" Binding="{Binding TaxStatus}" />
+                            <DataGridTextColumn Header="Прибыльность" Binding="{Binding ProfitabilityStatus}" />
+                            <DataGridTextColumn Header="Почасовая ставка" Binding="{Binding HourlyRate}" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>
             </TabItem>
-
-            <!-- Statistics Tab -->
-            <TabItem Header="Statistics">
+            <TabItem Header="Задачи">
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
+                        <Button Content="Добавить задачу" Command="{Binding AddTaskCommand}" Margin="0,0,5,0" />
+                        <Button Content="Старт" Command="{Binding StartTaskCommand}" Margin="0,0,5,0" />
+                        <Button Content="Стоп" Command="{Binding StopTaskCommand}" />
+                    </StackPanel>
+                    <DataGrid ItemsSource="{Binding Tasks}" SelectedItem="{Binding SelectedTask}" AutoGenerateColumns="False" Margin="5">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Название" Binding="{Binding Name}" />
+                            <DataGridTextColumn Header="Описание" Binding="{Binding Description}" />
+                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}" />
+                            <DataGridTextColumn Header="Часы" Binding="{Binding Hours}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="Статистика">
                 <StackPanel Margin="10">
-                    <TextBlock Text="Statistics" FontSize="18" FontWeight="Bold" Margin="0,0,0,10" />
-                    <TextBlock Text="{Binding TotalHoursSpent, StringFormat=Total Hours Spent: {0:F2}}" FontSize="16" Margin="0,0,0,5" />
-                    <TextBlock Text="{Binding TotalMoneyEarned, StringFormat=Total Money Earned: {0:C}}" FontSize="16" Margin="0,0,0,5" />
-                    <TextBlock Text="{Binding AverageHourlyRate, StringFormat=Average Hourly Rate: {0:C}}" FontSize="16" />
+                    <TextBlock Text="{Binding TotalHoursSpent, StringFormat='Всего часов: {0:F2}'}" Margin="0,0,0,5" />
+                    <TextBlock Text="{Binding TotalMoneyEarned, StringFormat='Всего заработано: {0:F2} ₽'}" Margin="0,0,0,5" />
+                    <TextBlock Text="{Binding AverageHourlyRate, StringFormat='Средняя ставка: {0:F2} ₽/ч'}" Margin="0,0,0,5" />
                 </StackPanel>
             </TabItem>
         </TabControl>
