@@ -61,7 +61,7 @@
                             <DataGridTextColumn Header="Название" Binding="{Binding Name}" />
                             <DataGridTextColumn Header="Описание" Binding="{Binding Description}" />
                             <DataGridTextColumn Header="Статус" Binding="{Binding Status}" />
-                            <DataGridTextColumn Header="Часы" Binding="{Binding Hours}" />
+                                           <DataGridTextColumn Header="Часы" Binding="{Binding HoursSpent}" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>
