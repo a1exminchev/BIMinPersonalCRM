@@ -10,53 +10,131 @@ using BIMinPersonalCRM.Services;
 namespace BIMinPersonalCRM.ViewModels
 {
     /// <summary>
-    ///     Root view model for the application. Exposes collections of clients and
-    ///     tasks along with commands to manipulate them and computed statistics.
+    ///     Главная модель представления приложения. Управляет коллекциями компаний,
+    ///     заказов и задач, а также реализацией команд и таймера.
     /// </summary>
     public class MainViewModel : BaseViewModel
     {
         private readonly IDataService _dataService;
+        private readonly System.Timers.Timer _timer;
 
+        private Company? _selectedCompany;
+        private Order? _selectedOrder;
         private TaskItem? _selectedTask;
-        private Client? _selectedClient;
+        private DateTime? _timerStartTime;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="MainViewModel"/> class.
+        ///     Инициализирует новую модель представления и загружает данные.
         /// </summary>
         public MainViewModel()
         {
-            // Use a default JSON file in the user's local application data folder.
+            // Файл данных в локальном каталоге пользователя.
             var dataPath = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "BIMinPersonalCRM",
                 "data.json");
             _dataService = new JsonDataService(dataPath);
 
-            Tasks = new ObservableCollection<TaskItem>();
-            Clients = new ObservableCollection<Client>();
+            Companies = new ObservableCollection<Company>();
 
-            // Commands
-            AddTaskCommand = new RelayCommand(_ => AddTask());
-            AddClientCommand = new RelayCommand(_ => AddClient());
+            // Инициализация команд
+            AddCompanyCommand = new RelayCommand(_ => AddCompany());
+            AddOrderCommand = new RelayCommand(_ => AddOrder(), _ => SelectedCompany != null);
+            AddTaskCommand = new RelayCommand(_ => AddTask(), _ => SelectedOrder != null);
             SaveCommand = new RelayCommand(async _ => await SaveAsync());
             LoadCommand = new RelayCommand(async _ => await LoadAsync());
+            StartTimerCommand = new RelayCommand(_ => StartTimer(), _ => SelectedTask != null && !IsTimerRunning);
+            StopTimerCommand = new RelayCommand(_ => StopTimer(), _ => SelectedTask != null && IsTimerRunning);
 
-            // Load data on startup
+            // Таймер с секундной периодичностью, обновляет часы раз в секунду.
+            _timer = new System.Timers.Timer(1000);
+            _timer.Elapsed += (_, _) => OnTimerTick();
+
+            // Загрузка данных при запуске
             _ = LoadAsync();
         }
 
-        /// <summary>
-        ///     Gets or sets the collection of tasks displayed in the UI.
-        /// </summary>
-        public ObservableCollection<TaskItem> Tasks { get; }
+        #region Коллекции и выбранные элементы
 
         /// <summary>
-        ///     Gets or sets the collection of clients displayed in the UI.
+        ///     Компании, отображаемые в UI.
         /// </summary>
-        public ObservableCollection<Client> Clients { get; }
+        public ObservableCollection<Company> Companies { get; }
 
         /// <summary>
-        ///     Gets or sets the currently selected task in the UI.
+        ///     Текущая выбранная компания.
+        /// </summary>
+        public Company? SelectedCompany
+        {
+            get => _selectedCompany;
+            set
+            {
+                if (_selectedCompany != value)
+                {
+                    _selectedCompany = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Orders));
+                    // Сбросить выбранный заказ и задачу при смене компании
+                    SelectedOrder = null;
+                    SelectedTask = null;
+                    // Обновить доступность команд
+                    ((RelayCommand)AddOrderCommand).RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Заказы выбранной компании. Возвращает пустой список, если компания не выбрана.
+        /// </summary>
+        public ObservableCollection<Order> Orders
+        {
+            get
+            {
+                if (SelectedCompany != null)
+                {
+                    return new ObservableCollection<Order>(SelectedCompany.Orders);
+                }
+                return new ObservableCollection<Order>();
+            }
+        }
+
+        /// <summary>
+        ///     Текущий выбранный заказ.
+        /// </summary>
+        public Order? SelectedOrder
+        {
+            get => _selectedOrder;
+            set
+            {
+                if (_selectedOrder != value)
+                {
+                    _selectedOrder = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Tasks));
+                    // При смене заказа сбросить выбранную задачу
+                    SelectedTask = null;
+                    ((RelayCommand)AddTaskCommand).RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Задачи выбранного заказа. Пустой список, если заказ не выбран.
+        /// </summary>
+        public ObservableCollection<TaskItem> Tasks
+        {
+            get
+            {
+                if (SelectedOrder != null)
+                {
+                    return new ObservableCollection<TaskItem>(SelectedOrder.Tasks);
+                }
+                return new ObservableCollection<TaskItem>();
+            }
+        }
+
+        /// <summary>
+        ///     Текущая выбранная задача.
         /// </summary>
         public TaskItem? SelectedTask
         {
@@ -67,107 +145,151 @@ namespace BIMinPersonalCRM.ViewModels
                 {
                     _selectedTask = value;
                     OnPropertyChanged();
+                    ((RelayCommand)StartTimerCommand).RaiseCanExecuteChanged();
+                    ((RelayCommand)StopTimerCommand).RaiseCanExecuteChanged();
                 }
             }
         }
 
         /// <summary>
-        ///     Gets or sets the currently selected client in the UI.
+        ///     Возвращает признак, что таймер запущен.
         /// </summary>
-        public Client? SelectedClient
-        {
-            get => _selectedClient;
-            set
-            {
-                if (_selectedClient != value)
-                {
-                    _selectedClient = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        #region Commands
-
-        /// <summary>
-        ///     Command to add a new task to the collection.
-        /// </summary>
-        public ICommand AddTaskCommand { get; }
-
-        /// <summary>
-        ///     Command to add a new client to the collection.
-        /// </summary>
-        public ICommand AddClientCommand { get; }
-
-        /// <summary>
-        ///     Command to persist the current state to disk.
-        /// </summary>
-        public ICommand SaveCommand { get; }
-
-        /// <summary>
-        ///     Command to load the persisted state from disk.
-        /// </summary>
-        public ICommand LoadCommand { get; }
+        public bool IsTimerRunning => _timer.Enabled;
 
         #endregion
 
-        #region Computed properties
+        #region Команды
+
+        public ICommand AddCompanyCommand { get; }
+        public ICommand AddOrderCommand { get; }
+        public ICommand AddTaskCommand { get; }
+        public ICommand SaveCommand { get; }
+        public ICommand LoadCommand { get; }
+        public ICommand StartTimerCommand { get; }
+        public ICommand StopTimerCommand { get; }
+
+        #endregion
+
+        #region Вычисляемые свойства
 
         /// <summary>
-        ///     Gets the total number of hours spent across all tasks.
+        ///     Общие затраченные часы по всем задачам всех заказов.
         /// </summary>
-        public double TotalHoursSpent => Tasks.Sum(t => t.HoursSpent);
+        public double TotalHoursSpent => Companies
+            .SelectMany(c => c.Orders)
+            .SelectMany(o => o.Tasks)
+            .Sum(t => t.HoursSpent);
 
         /// <summary>
-        ///     Gets the total money earned across all tasks.
+        ///     Общая сумма денег по всем заказам.
         /// </summary>
-        public decimal TotalMoneyEarned => Tasks.Sum(t => t.MoneyEarned);
+        public double TotalMoneyEarned => Companies
+            .SelectMany(c => c.Orders)
+            .Sum(o => o.Price);
 
         /// <summary>
-        ///     Gets the average hourly rate across all tasks. If no hours have
-        ///     been logged returns zero to avoid division by zero.
+        ///     Средняя ставка по всем заказам (руб/час). Если часов нет, возвращает 0.
         /// </summary>
-        public decimal AverageHourlyRate
+        public double AverageHourlyRate
         {
             get
             {
-                var totalHours = TotalHoursSpent;
-                return totalHours > 0 ? TotalMoneyEarned / (decimal)totalHours : 0m;
+                var hours = TotalHoursSpent;
+                return hours > 0 ? TotalMoneyEarned / hours : 0;
             }
         }
 
         #endregion
 
-        #region Private methods
+        #region Методы добавления
+
+        private void AddCompany()
+        {
+            var company = new Company
+            {
+                Name = "Новая компания"
+            };
+            Companies.Add(company);
+            SelectedCompany = company;
+        }
+
+        private void AddOrder()
+        {
+            if (SelectedCompany == null) return;
+            var order = new Order
+            {
+                Price = 0,
+                SoftwareType = "Revit",
+                ExpectedDurationDays = 1
+            };
+            SelectedCompany.Orders.Add(order);
+            OnPropertyChanged(nameof(Orders));
+            SelectedOrder = order;
+        }
 
         private void AddTask()
         {
-            // Assign the new task to the currently selected client if available.
+            if (SelectedOrder == null) return;
             var task = new TaskItem
             {
-                Title = "New Task",
-                StartDate = DateTime.Today,
-                ClientId = SelectedClient?.Id,
-                ClientName = SelectedClient?.Name
+                Title = "Новая задача",
+                StartDate = DateTime.Today
             };
-            Tasks.Add(task);
+            SelectedOrder.Tasks.Add(task);
+            OnPropertyChanged(nameof(Tasks));
+            SelectedTask = task;
             OnPropertyChanged(nameof(TotalHoursSpent));
-            OnPropertyChanged(nameof(TotalMoneyEarned));
             OnPropertyChanged(nameof(AverageHourlyRate));
         }
 
-        private void AddClient()
+        #endregion
+
+        #region Работа с таймером
+
+        private void StartTimer()
         {
-            var client = new Client { Name = "New Client" };
-            Clients.Add(client);
+            if (SelectedTask == null)
+                return;
+            _timerStartTime = DateTime.Now;
+            _timer.Start();
+            OnPropertyChanged(nameof(IsTimerRunning));
         }
+
+        private void StopTimer()
+        {
+            if (SelectedTask == null || !_timerStartTime.HasValue)
+                return;
+            _timer.Stop();
+            var elapsed = DateTime.Now - _timerStartTime.Value;
+            // Конвертировать в часы с точностью до двух знаков.
+            SelectedTask.HoursSpent += Math.Round(elapsed.TotalHours, 2);
+            _timerStartTime = null;
+            OnPropertyChanged(nameof(Tasks));
+            OnPropertyChanged(nameof(TotalHoursSpent));
+            OnPropertyChanged(nameof(AverageHourlyRate));
+            SelectedOrder?.UpdateProfitabilityStatus();
+            OnPropertyChanged(nameof(Orders));
+            OnPropertyChanged(nameof(SelectedOrder));
+            OnPropertyChanged(nameof(Companies));
+            OnPropertyChanged(nameof(TotalMoneyEarned));
+            OnPropertyChanged(nameof(IsTimerRunning));
+        }
+
+        private void OnTimerTick()
+        {
+            // Пока ничего не делаем каждую секунду, можно добавить индикацию.
+        }
+
+        #endregion
+
+        #region Сохранение и загрузка
 
         private async Task SaveAsync()
         {
             var data = new DataStore
             {
-                Clients = Clients.ToList(),
-                Tasks = Tasks.ToList()
+                Companies = Companies.ToList(),
+                CurrentTaskId = SelectedTask?.Id
             };
             await _dataService.SaveAsync(data);
         }
@@ -175,25 +297,36 @@ namespace BIMinPersonalCRM.ViewModels
         private async Task LoadAsync()
         {
             var data = await _dataService.LoadAsync();
-            Clients.Clear();
-            foreach (var client in data.Clients)
+            Companies.Clear();
+            if (data.Companies != null)
             {
-                Clients.Add(client);
-            }
-            Tasks.Clear();
-            foreach (var task in data.Tasks)
-            {
-                // Populate the ClientName property for display purposes.
-                if (task.ClientId.HasValue)
+                foreach (var company in data.Companies)
                 {
-                    var client = data.Clients.FirstOrDefault(c => c.Id == task.ClientId.Value);
-                    task.ClientName = client?.Name;
+                    Companies.Add(company);
                 }
-                Tasks.Add(task);
+            }
+            // Восстановить выбранную задачу
+            if (data.CurrentTaskId.HasValue)
+            {
+                foreach (var company in Companies)
+                {
+                    foreach (var order in company.Orders)
+                    {
+                        var task = order.Tasks.FirstOrDefault(t => t.Id == data.CurrentTaskId.Value);
+                        if (task != null)
+                        {
+                            SelectedCompany = company;
+                            SelectedOrder = order;
+                            SelectedTask = task;
+                            break;
+                        }
+                    }
+                    if (SelectedTask != null) break;
+                }
             }
             OnPropertyChanged(nameof(TotalHoursSpent));
-            OnPropertyChanged(nameof(TotalMoneyEarned));
             OnPropertyChanged(nameof(AverageHourlyRate));
+            OnPropertyChanged(nameof(TotalMoneyEarned));
         }
 
         #endregion
