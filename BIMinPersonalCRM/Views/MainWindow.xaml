@@ -607,7 +607,7 @@
                                         </DataGridTextColumn>
 
                                         <DataGridTextColumn Header="Добавлен"
-                                                            Binding="{Binding DateAdded}"
+                                                            Binding="{Binding DateAdded, StringFormat='{}{0:dd.MM.yyyy}'}"
                                                             Width="Auto"
                                                             MinWidth="100">
                                             <DataGridTextColumn.ElementStyle>

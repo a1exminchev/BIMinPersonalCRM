@@ -11,7 +11,11 @@ namespace BIMinPersonalCRM.ViewModels.Entities
     {
         private readonly FileAttachmentDTO _dto;
 
-        public FileAttachmentVM() { _dto = new(); }
+        public FileAttachmentVM()
+        {
+            _dto = new();
+            DateAdded = DateTime.Now;
+        }
 
         public FileAttachmentVM(FileAttachmentDTO dto)
         {
