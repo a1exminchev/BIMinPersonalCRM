@@ -8,6 +8,8 @@
         Icon="pack://application:,,,/Resources/BIMin_logo.png"
         Height="440" Width="500"
         WindowStartupLocation="CenterScreen"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
         ResizeMode="NoResize">
     
     <materialDesign:Card Padding="5">
@@ -24,13 +26,15 @@
                        FontSize="20"
                        FontWeight="Medium"
                        HorizontalAlignment="Center"
-                       Margin="0,0,0,10"/>
+                       Margin="0,0,0,10"
+                       Foreground="{DynamicResource MaterialDesignBody}"/>
 
             <!-- Форма -->
             <StackPanel Grid.Row="1">
                 
                 <!-- Название -->
                 <TextBox materialDesign:HintAssist.Hint="Название компании"
+                         materialDesign:HintAssist.FloatingScale="1.01"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          Foreground="{DynamicResource MaterialDesignBody}"
                          CaretBrush="{DynamicResource MaterialDesignBody}"
@@ -41,6 +45,7 @@
 
                 <!-- Телефон -->
                 <TextBox materialDesign:HintAssist.Hint="Телефон"
+                         materialDesign:HintAssist.FloatingScale="1.01"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          Foreground="{DynamicResource MaterialDesignBody}"
                          CaretBrush="{DynamicResource MaterialDesignBody}"
@@ -51,6 +56,7 @@
 
                 <!-- Сайт -->
                 <TextBox materialDesign:HintAssist.Hint="Сайт"
+                         materialDesign:HintAssist.FloatingScale="1.01"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          Foreground="{DynamicResource MaterialDesignBody}"
                          CaretBrush="{DynamicResource MaterialDesignBody}"
@@ -64,7 +70,7 @@
                     <Border Width="100"
                             Height="100"
                             CornerRadius="25" 
-                            Background="{Binding CardColor, Converter={x:Static converters:ColorToBrushConverter.Instance}}"
+                            Background="{DynamicResource MaterialDesignBody}"
                             BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" ClipToBounds="True">
                         <Image Source="{Binding LogoPath, Converter={x:Static converters:LogoPathToImageConverter.Instance}}"
                                Stretch="Uniform"

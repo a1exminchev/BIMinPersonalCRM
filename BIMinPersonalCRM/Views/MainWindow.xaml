@@ -19,6 +19,7 @@
         MinWidth="300"
         MinHeight="400"
         SnapsToDevicePixels="True"
+        UseLayoutRounding="True"
         d:Width="1400"
         Background="{DynamicResource MaterialDesignPaper}">
     
@@ -31,10 +32,10 @@
             <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
         </Style>
         <Style x:Key="CenteredCellStyle" TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
-                <Setter Property="VerticalContentAlignment" Value="Center"/>
-                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
-            </Style>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+        </Style>
         <ObjectDataProvider x:Key="OrderExecutionStatuses" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="models:OrderExecutionStatus"/>
