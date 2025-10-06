@@ -22,7 +22,7 @@ namespace BIMinPersonalCRM.DataObjects
         public double ActualDurationHours { get; set; } = 0;
         public DateTime? CompletionDate { get; set; }
         public int CalendarDaysFromStart { get; set; } = 0;
-        public ProfitabilityStatus ProfitabilityStatus { get; set; } = ProfitabilityStatus.Medium;
+        public ProfitabilityStatus ProfitabilityStatus { get; set; } = ProfitabilityStatus.NoOrders;
         public string CompanyName { get; set; }
     }
 }

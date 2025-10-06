@@ -59,6 +59,7 @@ namespace BIMinPersonalCRM.Models
     /// </summary>
     public enum ProfitabilityStatus
     {
+        [Description("Не было заказов")] NoOrders,
         [Description("Убыточно")] VeryLow,
         [Description("Малая прибыльность")] Low,
         [Description("Средняя прибыльность")] Medium,

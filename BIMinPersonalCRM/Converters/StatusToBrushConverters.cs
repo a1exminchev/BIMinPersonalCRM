@@ -79,6 +79,7 @@ namespace BIMinPersonalCRM.Converters
             {
                 return status switch
                 {
+                    ProfitabilityStatus.NoOrders => new SolidColorBrush(Colors.LightGray),
                     ProfitabilityStatus.VeryLow => new SolidColorBrush(Color.FromRgb(255, 205, 210)),
                     ProfitabilityStatus.Low => new SolidColorBrush(Color.FromRgb(255, 171, 145)),
                     ProfitabilityStatus.Medium => new SolidColorBrush(Color.FromRgb(255, 249, 196)),

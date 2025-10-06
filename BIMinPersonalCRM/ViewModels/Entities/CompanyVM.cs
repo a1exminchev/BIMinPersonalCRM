@@ -125,7 +125,7 @@ namespace BIMinPersonalCRM.ViewModels.Entities
             {
                 if (Orders.Count == 0)
                 {
-                    return ProfitabilityStatus.Medium;
+                    return ProfitabilityStatus.NoOrders;
                 }
 
                 var average = Orders.Average(order => (int)order.ProfitabilityStatus);
