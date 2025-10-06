@@ -823,7 +823,8 @@
                                         <DataGridTextColumn Header="Размер, мб"
                                                             Binding="{Binding FileSize, Converter={StaticResource BytesToMegabytesConverter}, StringFormat='{}{0:N2}'}"
                                                             Width="Auto"
-                                                            MinWidth="100">
+                                                            MinWidth="100"
+                                                            IsReadOnly="True">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
@@ -834,7 +835,8 @@
                                         <DataGridTextColumn Header="Добавлен"
                                                             Binding="{Binding DateAdded, StringFormat='{}{0:dd.MM.yyyy}'}"
                                                             Width="Auto"
-                                                            MinWidth="100">
+                                                            MinWidth="100"
+                                                            IsReadOnly="True">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
@@ -862,14 +864,15 @@
                                             </DataGridTextColumn.ElementStyle>
                                         </DataGridTextColumn>
 
-                                        <DataGridTemplateColumn Header="" Width="150" CanUserResize="False" CanUserSort="False">
+                                        <DataGridTemplateColumn Header="" Width="Auto" CanUserResize="False" CanUserSort="False">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Button Content="Указать путь"
                                                             Command="{Binding DataContext.RepathFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                             CommandParameter="{Binding}"
                                                             Style="{StaticResource MaterialDesignOutlinedButton}"
-                                                            Visibility="{Binding FilePath, Converter={x:Static converters:PathExistsConverter.Instance}, ConverterParameter=Inverse}"
+                                                            Visibility="{Binding FilePath, Converter={x:Static converters:PathExistsToVisibilityConverter.Instance}}"
+                                                            d:Visibility="Visible"
                                                             Padding="0"
                                                             Height="28"
                                                             Width="110"/>
