@@ -644,6 +644,7 @@ namespace BIMinPersonalCRM.ViewModels
         public DelegateCommand ToggleThemeCommand { get; }
         public DelegateCommand SaveCommand { get; }
         public DelegateCommand LoadCommand { get; }
+        public DelegateCommand<OrderVM> ShowOrderFilesCommand { get; }
         public DelegateCommand StartTimerCommand { get; }
         public DelegateCommand StopTimerCommand { get; }
         public DelegateCommand DeleteCompanyCommand { get; }
@@ -670,31 +671,12 @@ namespace BIMinPersonalCRM.ViewModels
             }
 
             Companies = new();
+            SelectedOrderStatusFilter = OrderExecutionStatus.InProgress;
 
             IsLightTheme = ThemeManager.IsLightTheme;
             ThemeManager.ThemeChanged += ThemeManagerOnThemeChanged;
 
-            // Инициализация команд
-            AddCompanyCommand = new(AddCompany);
-            AddOrderCommand = new(AddOrder, _ => SelectedCompany != null);
-            RemoveOrderCommand = new(RemoveOrder, parameter => SelectedCompany != null && parameter is OrderVM);
-            AddTaskCommand = new(AddTask, _ => SelectedOrder != null);
-            AddEmployeeCommand = new(AddEmployee, _ => SelectedCompany != null);
-            RemoveEmployeeCommand = new(RemoveEmployee, parameter => SelectedCompany != null && parameter is EmployeeVM);
-            AddFileCommand = new(AddFile, _ => SelectedOrder != null);
-            RemoveFileCommand = new(RemoveFile, parameter => SelectedOrder != null && parameter is FileAttachmentVM);
-            OpenFileCommand = new(OpenFile, parameter => parameter is FileAttachmentVM f && System.IO.File.Exists(f.FilePath));
-            RepathFileCommand = new(RepathFile, parameter => SelectedOrder != null && parameter is FileAttachmentVM);
-            DeleteCompanyCommand = new(DeleteCompany, _ => SelectedCompany != null);
-            SelectLogoCommand = new(SelectLogo, _ => SelectedCompany != null);
-            RemoveLogoCommand = new(RemoveLogo, _ => SelectedCompany != null && SelectedCompany.LogoPath != "");
-            SelectEmployeeAvatarCommand = new(SelectEmployeeAvatar, _ => true);
-            RemoveEmployeeAvatarCommand = new(RemoveEmployeeAvatar, _ => true);
-            ToggleThemeCommand = new(ToggleTheme);
-            SaveCommand = new(async () => await SaveAsync());
-            LoadCommand = new (async () => await LoadAsync());
-            StartTimerCommand = new(StartTimer, _ => SelectedTask != null && !IsTimerRunning);
-            StopTimerCommand = new(StopTimer, _ => SelectedTask != null && IsTimerRunning);
+            
 
             // Таймер с секундной периодичностью, обновляет часы раз в секунду.
             StatisticsPeriods = new List<StatisticsPeriodOption>
@@ -725,6 +707,28 @@ namespace BIMinPersonalCRM.ViewModels
 
             // Загрузка данных при запуске
             _ = LoadAsync();
+
+            // Инициализация команд
+            AddCompanyCommand = new(AddCompany);
+            AddOrderCommand = new(AddOrder, _ => SelectedCompany != null);
+            RemoveOrderCommand = new(RemoveOrder, parameter => SelectedCompany != null && parameter is OrderVM);
+            AddTaskCommand = new(AddTask, _ => SelectedOrder != null);
+            AddEmployeeCommand = new(AddEmployee, _ => SelectedCompany != null);
+            RemoveEmployeeCommand = new(RemoveEmployee, parameter => SelectedCompany != null && parameter is EmployeeVM);
+            AddFileCommand = new(AddFile, _ => SelectedOrder != null);
+            RemoveFileCommand = new(RemoveFile, parameter => SelectedOrder != null && parameter is FileAttachmentVM);
+            OpenFileCommand = new(OpenFile, parameter => parameter is FileAttachmentVM f && System.IO.File.Exists(f.FilePath));
+            RepathFileCommand = new(RepathFile, parameter => SelectedOrder != null && parameter is FileAttachmentVM);
+            DeleteCompanyCommand = new(DeleteCompany, _ => SelectedCompany != null);
+            SelectLogoCommand = new(SelectLogo, _ => SelectedCompany != null);
+            RemoveLogoCommand = new(RemoveLogo, _ => SelectedCompany != null && SelectedCompany.LogoPath != "");
+            SelectEmployeeAvatarCommand = new(SelectEmployeeAvatar, _ => true);
+            RemoveEmployeeAvatarCommand = new(RemoveEmployeeAvatar, _ => true);
+            ToggleThemeCommand = new(ToggleTheme);
+            SaveCommand = new(async () => await SaveAsync());
+            LoadCommand = new(async () => await LoadAsync());
+            StartTimerCommand = new(StartTimer, _ => SelectedTask != null && !IsTimerRunning);
+            StopTimerCommand = new(StopTimer, _ => SelectedTask != null && IsTimerRunning);
         }
 
         #region Имплементация команд
@@ -766,7 +770,7 @@ namespace BIMinPersonalCRM.ViewModels
                 Name = GenerateUniqueOrderName(SelectedCompany, "Новый заказ"),
                 Price = 0,
                 SoftwareType = "Revit",
-                ExpectedDurationDays = 10,
+                ExpectedDurationHours = 10,
                 CompanyName = SelectedCompany.Name
             };
 
@@ -843,9 +847,18 @@ namespace BIMinPersonalCRM.ViewModels
         {
             if (SelectedCompany == null || employee == null) return;
 
-            if (SelectedCompany.Employees.Remove(employee) && ReferenceEquals(SelectedEmployee, employee))
+            var result = System.Windows.MessageBox.Show(
+                $"Вы действительно хотите удалить сотрудника '{SelectedEmployee.FullName}'?",
+                "Подтверждение удаления",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Warning);
+
+            if (result == System.Windows.MessageBoxResult.Yes)
             {
-                SelectedEmployee = null;
+                if (SelectedCompany.Employees.Remove(employee) && ReferenceEquals(SelectedEmployee, employee))
+                {
+                    SelectedEmployee = null;
+                }
             }
         }
 
@@ -879,9 +892,18 @@ namespace BIMinPersonalCRM.ViewModels
         {
             if (SelectedOrder == null || file == null) return;
 
-            if (SelectedOrder.AttachedFiles.Remove(file) && ReferenceEquals(SelectedFile, file))
+            var result = System.Windows.MessageBox.Show(
+                $"Вы действительно хотите удалить файл '{SelectedFile.Name}'?",
+                "Подтверждение удаления",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Warning);
+
+            if (result == System.Windows.MessageBoxResult.Yes)
             {
-                SelectedFile = null;
+                if (SelectedOrder.AttachedFiles.Remove(file) && ReferenceEquals(SelectedFile, file))
+                {
+                    SelectedFile = null;
+                }
             }
         }
 

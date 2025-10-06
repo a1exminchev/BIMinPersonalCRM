@@ -19,7 +19,6 @@ namespace BIMinPersonalCRM.ViewModels.Entities
             Tasks = new();
             Price = 0;
             CreatedDate = DateTime.Now;
-            CalendarDaysFromStart = 0;
         }
 
         public OrderVM(OrderDTO dto)
@@ -35,10 +34,9 @@ namespace BIMinPersonalCRM.ViewModels.Entities
             Tasks = new(dto.Tasks.Select(e => new TaskVM(e)));
             ExecutionStatus = _dto.ExecutionStatus;
             TaxStatus = _dto.TaxStatus;
-            ExpectedDurationDays = _dto.ExpectedDurationDays;
+            ExpectedDurationHours = _dto.ExpectedDurationHours;
             ActualDurationHours = _dto.ActualDurationHours;
             CompletionDate = _dto.CompletionDate;
-            CalendarDaysFromStart = _dto.CalendarDaysFromStart;
             ProfitabilityStatus = _dto.ProfitabilityStatus;
             CompanyName = _dto.CompanyName;
         }
@@ -97,10 +95,10 @@ namespace BIMinPersonalCRM.ViewModels.Entities
             set => SetValue(nameof(TaxStatus), value);
         }
 
-        public int ExpectedDurationDays
+        public int ExpectedDurationHours
         {
-            get => GetValue<int>(nameof(ExpectedDurationDays));
-            set => SetValue(nameof(ExpectedDurationDays), value);
+            get => GetValue<int>(nameof(ExpectedDurationHours));
+            set => SetValue(nameof(ExpectedDurationHours), value);
         }
 
         public double ActualDurationHours
@@ -115,12 +113,6 @@ namespace BIMinPersonalCRM.ViewModels.Entities
             set => SetValue(nameof(CompletionDate), value);
         }
 
-        public int CalendarDaysFromStart
-        {
-            get => GetValue<int>(nameof(CalendarDaysFromStart));
-            set => SetValue(nameof(CalendarDaysFromStart), value);
-        }
-
         public ProfitabilityStatus ProfitabilityStatus
         {
             get => GetValue<ProfitabilityStatus>(nameof(ProfitabilityStatus));
@@ -131,6 +123,12 @@ namespace BIMinPersonalCRM.ViewModels.Entities
         {
             get => GetValue<string>(nameof(CompanyName));
             set => SetValue(nameof(CompanyName), value);
+        }
+
+        public string Comments
+        {
+            get => GetValue<string>(nameof(Comments));
+            set => SetValue(nameof(Comments), value);
         }
 
         public double HourlyRate
@@ -179,10 +177,9 @@ namespace BIMinPersonalCRM.ViewModels.Entities
             _dto.Tasks = Tasks.Select(t => t.ToDto()).ToList();
             _dto.ExecutionStatus = ExecutionStatus;
             _dto.TaxStatus = TaxStatus;
-            _dto.ExpectedDurationDays = ExpectedDurationDays;
+            _dto.ExpectedDurationHours = ExpectedDurationHours;
             _dto.ActualDurationHours = ActualDurationHours;
             _dto.CompletionDate = CompletionDate;
-            _dto.CalendarDaysFromStart = CalendarDaysFromStart;
             _dto.ProfitabilityStatus = ProfitabilityStatus;
             _dto.CompanyName = CompanyName;
             return _dto;
