@@ -1,25 +1,20 @@
-using System.Threading.Tasks;
-using BIMinPersonalCRM.Models;
+﻿using BIMinPersonalCRM.DataObjects;
 
 namespace BIMinPersonalCRM.Services
 {
     /// <summary>
-    ///     Abstracts the persistence layer used by the application. This
-    ///     interface can be implemented using different storage mechanisms
-    ///     (e.g. JSON files, databases). The view models interact with this
-    ///     service rather than referencing a specific implementation directly.
+    ///     Абстракция слоя сохранения данных.
     /// </summary>
     public interface IDataService
     {
         /// <summary>
-        ///     Loads the persisted data asynchronously. If no data exists
-        ///     returns a new <see cref="DataStore"/> with empty collections.
+        ///     Загружает сохранённые данные или возвращает пустой набор.
         /// </summary>
-        Task<DataStore> LoadAsync();
+        Task<DataStoreDto> LoadAsync();
 
         /// <summary>
-        ///     Persists the given <see cref="DataStore"/> asynchronously.
+        ///     Сохраняет переданные данные асинхронно.
         /// </summary>
-        Task SaveAsync(DataStore data);
+        Task SaveAsync(DataStoreDto data);
     }
 }

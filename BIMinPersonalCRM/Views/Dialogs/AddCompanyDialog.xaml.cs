@@ -1,21 +1,22 @@
 ﻿using System.Windows;
 using Microsoft.Win32;
-using BIMinPersonalCRM.Models;
+using BIMinPersonalCRM.ViewModels.Entities;
 
 namespace BIMinPersonalCRM.Views.Dialogs
 {
     public partial class AddCompanyDialog : Window
     {
-        public Company Company { get; private set; }
+        public CompanyVM Company { get; private set; }
+
         public AddCompanyDialog()
         {
             InitializeComponent();
-            Company = new Company
+            Company = new CompanyVM
             {
-                Name = "",
-                Phone = "",
-                Website = "",
-                LogoPath = "",
+                Name = string.Empty,
+                Phone = string.Empty,
+                Website = string.Empty,
+                LogoPath = string.Empty,
                 CardColor = "#FFFFFF"
             };
             DataContext = Company;
@@ -25,22 +26,32 @@ namespace BIMinPersonalCRM.Views.Dialogs
         {
             var dialog = new OpenFileDialog
             {
-                Title = "Ð’Ñ‹Ð±ÐµÑ€Ð¸Ñ‚Ðµ Ð»Ð¾Ð³Ð¾Ñ‚Ð¸Ð¿ ÐºÐ¾Ð¼Ð¿Ð°Ð½Ð¸Ð¸",
-                Filter = "Ð˜Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ñ|*.jpg;*.jpeg;*.png;*.gif;*.bmp|Ð’ÑÐµ Ñ„Ð°Ð¹Ð»Ñ‹|*.*"
+                Title = "Выбор логотипа компании",
+                Filter = "Изображения|*.jpg;*.jpeg;*.png;*.gif;*.bmp|Все файлы|*.*"
             };
 
             if (dialog.ShowDialog() == true)
             {
-                Company.LogoPath = dialog.FileName;
+                try
+                {
+                    var ext = System.IO.Path.GetExtension(dialog.FileName);
+                    var unique = System.Guid.NewGuid().ToString("N") + ext;
+                    var dest = System.IO.Path.Combine(AppSettings.CompanyLogosFolder, unique);
+                    System.IO.File.Copy(dialog.FileName, dest, true);
+                    Company.LogoPath = dest;
+                }
+                catch
+                {
+                    Company.LogoPath = string.Empty;
+                }
             }
         }
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            // Ð’Ð°Ð»Ð¸Ð´Ð°Ñ†Ð¸Ñ
             if (string.IsNullOrWhiteSpace(Company.Name))
             {
-                MessageBox.Show("ÐŸÐ¾Ð¶Ð°Ð»ÑƒÐ¹ÑÑ‚Ð°, Ð²Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ðµ ÐºÐ¾Ð¼Ð¿Ð°Ð½Ð¸Ð¸.", "ÐžÑˆÐ¸Ð±ÐºÐ°", 
+                MessageBox.Show("Пожалуйста, заполните название компании.", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -54,5 +65,4 @@ namespace BIMinPersonalCRM.Views.Dialogs
         }
     }
 }
-
 

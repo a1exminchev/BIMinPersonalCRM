@@ -1,13 +1,18 @@
-using System.Windows;
+﻿using System.Windows;
+using BIMinPersonalCRM.Services;
 
 namespace BIMinPersonalCRM
 {
     /// <summary>
-    ///     Interaction logic for App.xaml. This partial class is generated when compiling
-    ///     the XAML markup defined in App.xaml. It can be used to handle global
-    ///     application events such as Startup and Exit if needed.
+    ///     Главный класс приложения WPF.
+    ///     Используется для обработки событий уровня приложения (Startup, Exit и т. д.).
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            ThemeManager.Initialize();
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace BIMinPersonalCRM.Controls
 
         public static readonly DependencyProperty SelectedColorTextProperty =
             DependencyProperty.Register(nameof(SelectedColorText), typeof(string), typeof(ColorPickerControl),
-                new FrameworkPropertyMetadata("#FFFFFF", FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+                new FrameworkPropertyMetadata("#FFFFFF", FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedColorTextChanged));
 
         public Brush SelectedColor
         {
@@ -36,6 +36,34 @@ namespace BIMinPersonalCRM.Controls
             if (d is ColorPickerControl control && e.NewValue is SolidColorBrush brush)
             {
                 control.SelectedColorText = brush.Color.ToString();
+            }
+        }
+
+        private static void OnSelectedColorTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ColorPickerControl control && e.NewValue is string colorString && !string.IsNullOrWhiteSpace(colorString))
+            {
+                try
+                {
+                    var color = (Color)ColorConverter.ConvertFromString(colorString);
+                    var newBrush = new SolidColorBrush(color);
+                    // Avoid infinite loop: only set if different
+                    if (control.SelectedColor is SolidColorBrush existing)
+                    {
+                        if (existing.Color != color)
+                        {
+                            control.SelectedColor = newBrush;
+                        }
+                    }
+                    else
+                    {
+                        control.SelectedColor = newBrush;
+                    }
+                }
+                catch
+                {
+                    // Ignore invalid color strings
+                }
             }
         }
 

@@ -1,48 +1,39 @@
-<UserControl x:Class="BIMinPersonalCRM.Controls.ColorPickerControl"
+﻿<UserControl x:Class="BIMinPersonalCRM.Controls.ColorPickerControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
-    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        
-        <!-- Поле для отображения выбранного цвета -->
-        <Border Grid.Column="0" 
+
+        <Border Grid.Column="0"
                 Background="{Binding SelectedColor, RelativeSource={RelativeSource AncestorType=UserControl}}"
                 BorderBrush="{StaticResource BorderBrush}"
                 BorderThickness="1"
                 CornerRadius="4"
                 Height="32"
-                Margin="0,0,8,0">
-            <TextBlock Text="{Binding SelectedColorText, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Center"
-                       Foreground="White"
-                       FontWeight="Medium"/>
-        </Border>
-        
-        <!-- Кнопка выбора цвета -->
-        <Button Grid.Column="1" 
+                Margin="0,0,8,0"
+                ToolTip="{Binding SelectedColorText, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+
+        <Button x:Name="ColorButton"
+                Grid.Column="1"
                 Style="{StaticResource MaterialDesignOutlinedButton}"
-                Content="Выбрать"
+                Content="&#x418;&#x437;&#x43C;&#x435;&#x43D;&#x438;&#x442;&#x44C; &#x446;&#x432;&#x435;&#x442;"
                 Click="SelectColor_Click"
                 Height="32"/>
-        
-        <!-- Popup с палитрой цветов -->
-        <Popup x:Name="ColorPopup" 
+
+        <Popup x:Name="ColorPopup"
                Placement="Bottom"
                PlacementTarget="{Binding ElementName=ColorButton}"
                StaysOpen="False">
-            <Border Background="White" 
-                    BorderBrush="{StaticResource BorderBrush}" 
+            <Border Background="White"
+                    BorderBrush="{StaticResource BorderBrush}"
                     BorderThickness="1"
                     CornerRadius="4"
                     Padding="8">
                 <UniformGrid Columns="8" Rows="6">
-                    <!-- Предопределенные цвета -->
                     <Button Background="#FF0000" Click="ColorButton_Click" Tag="#FF0000" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#00FF00" Click="ColorButton_Click" Tag="#00FF00" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#0000FF" Click="ColorButton_Click" Tag="#0000FF" Style="{StaticResource ColorButtonStyle}"/>
@@ -51,7 +42,7 @@
                     <Button Background="#00FFFF" Click="ColorButton_Click" Tag="#00FFFF" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#FFA500" Click="ColorButton_Click" Tag="#FFA500" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#800080" Click="ColorButton_Click" Tag="#800080" Style="{StaticResource ColorButtonStyle}"/>
-                    
+
                     <Button Background="#FFB6C1" Click="ColorButton_Click" Tag="#FFB6C1" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#98FB98" Click="ColorButton_Click" Tag="#98FB98" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#87CEEB" Click="ColorButton_Click" Tag="#87CEEB" Style="{StaticResource ColorButtonStyle}"/>
@@ -60,16 +51,16 @@
                     <Button Background="#AFEEEE" Click="ColorButton_Click" Tag="#AFEEEE" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#FFDAB9" Click="ColorButton_Click" Tag="#FFDAB9" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#D8BFD8" Click="ColorButton_Click" Tag="#D8BFD8" Style="{StaticResource ColorButtonStyle}"/>
-                    
+
                     <Button Background="#003399" Click="ColorButton_Click" Tag="#003399" Style="{StaticResource ColorButtonStyle}"/>
-                    <Button Background="#66ccff" Click="ColorButton_Click" Tag="#66ccff" Style="{StaticResource ColorButtonStyle}"/>
-                    <Button Background="#83cde2" Click="ColorButton_Click" Tag="#83cde2" Style="{StaticResource ColorButtonStyle}"/>
+                    <Button Background="#66CCFF" Click="ColorButton_Click" Tag="#66CCFF" Style="{StaticResource ColorButtonStyle}"/>
+                    <Button Background="#83CDE2" Click="ColorButton_Click" Tag="#83CDE2" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#4CAF50" Click="ColorButton_Click" Tag="#4CAF50" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#FF9800" Click="ColorButton_Click" Tag="#FF9800" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#F44336" Click="ColorButton_Click" Tag="#F44336" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#9C27B0" Click="ColorButton_Click" Tag="#9C27B0" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#607D8B" Click="ColorButton_Click" Tag="#607D8B" Style="{StaticResource ColorButtonStyle}"/>
-                    
+
                     <Button Background="#8BC34A" Click="ColorButton_Click" Tag="#8BC34A" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#CDDC39" Click="ColorButton_Click" Tag="#CDDC39" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#FFC107" Click="ColorButton_Click" Tag="#FFC107" Style="{StaticResource ColorButtonStyle}"/>
@@ -78,7 +69,7 @@
                     <Button Background="#9E9E9E" Click="ColorButton_Click" Tag="#9E9E9E" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#000000" Click="ColorButton_Click" Tag="#000000" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#FFFFFF" Click="ColorButton_Click" Tag="#FFFFFF" Style="{StaticResource ColorButtonStyle}"/>
-                    
+
                     <Button Background="#E91E63" Click="ColorButton_Click" Tag="#E91E63" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#2196F3" Click="ColorButton_Click" Tag="#2196F3" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#00BCD4" Click="ColorButton_Click" Tag="#00BCD4" Style="{StaticResource ColorButtonStyle}"/>
@@ -87,7 +78,7 @@
                     <Button Background="#3F51B5" Click="ColorButton_Click" Tag="#3F51B5" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#673AB7" Click="ColorButton_Click" Tag="#673AB7" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#FF1744" Click="ColorButton_Click" Tag="#FF1744" Style="{StaticResource ColorButtonStyle}"/>
-                    
+
                     <Button Background="#C8E6C9" Click="ColorButton_Click" Tag="#C8E6C9" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#BBDEFB" Click="ColorButton_Click" Tag="#BBDEFB" Style="{StaticResource ColorButtonStyle}"/>
                     <Button Background="#FFF9C4" Click="ColorButton_Click" Tag="#FFF9C4" Style="{StaticResource ColorButtonStyle}"/>
@@ -101,3 +92,5 @@
         </Popup>
     </Grid>
 </UserControl>
+
+

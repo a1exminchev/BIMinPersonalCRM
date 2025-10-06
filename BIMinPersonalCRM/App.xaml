@@ -10,8 +10,8 @@
 
                 <!-- Material Design: базовая тема -->
                 <materialDesign:BundledTheme BaseTheme="Light"
-                                               PrimaryColor="Blue"
-                                               SecondaryColor="LightBlue"/>
+                                             PrimaryColor="Blue"
+                                             SecondaryColor="LightBlue"/>
 
                 <!-- ВАЖНО: словари контролов -->
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />

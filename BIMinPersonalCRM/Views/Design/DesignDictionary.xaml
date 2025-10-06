@@ -2,18 +2,18 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- Корпоративные цвета -->
-    <SolidColorBrush x:Key="PrimaryBrush" Color="#003399"/>
-    <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#002266"/>
-    <SolidColorBrush x:Key="AccentBrush" Color="AliceBlue"/>
-    <SolidColorBrush x:Key="SecondaryBrush" Color="#83cde2"/>
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource PrimaryHueMidColor}"/>
+    <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{DynamicResource PrimaryHueDarkColor}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource SecondaryHueMidColor}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{DynamicResource SecondaryHueLightColor}"/>
     <SolidColorBrush x:Key="SuccessBrush" Color="#4CAF50"/>
     <SolidColorBrush x:Key="WarningBrush" Color="#FF9800"/>
     <SolidColorBrush x:Key="ErrorBrush" Color="#F44336"/>
-    <SolidColorBrush x:Key="BackgroundBrush" Color="#F8FCFF"/>
-    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="BorderBrush" Color="#83cde2"/>
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#003399"/>
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#336699"/>
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{DynamicResource MaterialDesignPaperColor}"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="{DynamicResource MaterialDesignCardBackgroundColor}"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource PrimaryHueLightColor}"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{DynamicResource MaterialDesignBodyColor}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{DynamicResource MaterialDesignBodySecondaryColor}"/>
 
     <!-- Статусы отношений -->
     <SolidColorBrush x:Key="TerribleRelationBrush" Color="#FFCDD2"/>
@@ -44,14 +44,23 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueMidBrush}"/>
                 <Setter Property="BorderThickness" Value="2"/>
                 <Setter Property="Effect">
                     <Setter.Value>
-                        <DropShadowEffect Color="#003399" Opacity="0.2" ShadowDepth="3" BlurRadius="12"/>
+                        <DropShadowEffect Color="{DynamicResource PrimaryHueMidColor}" Opacity="0.2" ShadowDepth="3" BlurRadius="12"/>
                     </Setter.Value>
                 </Setter>
             </Trigger>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect Color="{DynamicResource PrimaryHueMidColor}" Opacity="0.2" ShadowDepth="3" BlurRadius="12"/>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
         </Style.Triggers>
     </Style>
 
@@ -59,7 +68,7 @@
     <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <!--<Setter Property="Foreground" Value="{DynamicResource MaterialDesignBodyColor}"/>-->
         <Setter Property="Margin" Value="0,0,0,12"/>
     </Style>
 
@@ -89,16 +98,6 @@
         </Setter>
     </Style>
 
-    <!-- Стиль для аватаров -->
-    <Style x:Key="AvatarStyle" TargetType="Border">
-        <Setter Property="Width" Value="40"/>
-        <Setter Property="Height" Value="40"/>
-        <Setter Property="CornerRadius" Value="20"/>
-        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="2"/>
-        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
-    </Style>
-
     <!-- Стиль для статус-индикаторов -->
     <Style x:Key="StatusIndicatorStyle" TargetType="Border">
         <Setter Property="CornerRadius" Value="12"/>
@@ -107,33 +106,43 @@
     </Style>
 
     <!-- Стиль для TabItem с hover-эффектами -->
-    <Style x:Key="CustomTabItemStyle" TargetType="TabItem">
+        <Style x:Key="CustomTabItemStyle" TargetType="TabItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
-                    <Border x:Name="Border" 
-                            Background="Transparent" 
-                            BorderBrush="{StaticResource BorderBrush}" 
-                            BorderThickness="0,0,0,2" 
-                            Padding="16,8">
-                        <ContentPresenter ContentSource="Header" 
-                                          HorizontalAlignment="Center" 
-                                          VerticalAlignment="Center"/>
-                    </Border>
+                    <Grid Background="Transparent">
+                        <Border x:Name="HeaderBackground"
+                                Background="Transparent"
+                                Padding="16,8">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="Underline"
+                                Height="3"
+                                Margin="16,0,16,0"
+                                VerticalAlignment="Bottom"
+                                Background="Transparent"/>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="{StaticResource SecondaryBrush}"/>
-                            <Setter TargetName="Border" Property="Opacity" Value="0.3"/>
+                            <Setter TargetName="Underline" Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="{StaticResource AccentBrush}"/>
-                            <Setter TargetName="Border" Property="Opacity" Value="0.2"/>
-                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                            <Setter TargetName="Underline" Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignDisabledButtonForeground}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
     </Style>
 
     <!-- Стиль для кнопок выбора цвета -->
@@ -153,7 +162,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueMidBrush}"/>
                             <Setter Property="BorderThickness" Value="2"/>
                         </Trigger>
                     </ControlTemplate.Triggers>

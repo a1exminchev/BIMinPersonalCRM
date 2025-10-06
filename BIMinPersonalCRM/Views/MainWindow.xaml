@@ -7,19 +7,42 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:viewModels="clr-namespace:BIMinPersonalCRM.ViewModels"
         xmlns:models="clr-namespace:BIMinPersonalCRM.Models"
-        xmlns:local="clr-namespace:BIMinPersonalCRM.Converters"
+        xmlns:converters="clr-namespace:BIMinPersonalCRM.Converters"
         xmlns:controls="clr-namespace:BIMinPersonalCRM.Views.Controls"
         xmlns:customControls="clr-namespace:BIMinPersonalCRM.Controls"
         xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
-        Title="BIMin Personal CRM"
-        Height="900"
-        Width="1600"
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}">
+        Title="BIMin CRM"
+        Icon="pack://application:,,,/Resources/BIMin_logo.png"
+        WindowState="Maximized"
+        MinWidth="300"
+        MinHeight="400"
+        SnapsToDevicePixels="True"
+        d:Width="1400"
+        Background="{DynamicResource MaterialDesignPaper}">
+    
     <Window.DataContext>
-        <viewModels:MainViewModel />
+        <viewModels:MainVM />
     </Window.DataContext>
+
+    <Window.Resources>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+        </Style>
+        <Style x:Key="CenteredCellStyle" TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+            </Style>
+        <ObjectDataProvider x:Key="OrderExecutionStatuses" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:OrderExecutionStatus"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+    
+    
 
     <Grid>
         <Grid.RowDefinitions>
@@ -37,288 +60,748 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <materialDesign:PackIcon Kind="BusinessCard" Width="32" Height="32" Foreground="White"/>
-                    <TextBlock Text="BIMin Personal CRM" FontSize="20" FontWeight="Medium" Margin="12,0,0,0" Foreground="White"/>
+                    <TextBlock Text="BIMin CRM"
+                               FontSize="20"
+                               FontWeight="Medium"
+                               Margin="12,0,0,0"
+                               Foreground="White"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource MaterialDesignFlatButton}" Foreground="White" Command="{Binding SaveCommand}" Margin="0,0,8,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <materialDesign:PackIcon Kind="ContentSave" Width="16" Height="16"/>
-                            <TextBlock Text="Ð¡Ð¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ" Margin="8,0,0,0"/>
+                            <materialDesign:PackIcon Kind="ContentSave" Width="20" Height="20"/>
+                            <TextBlock Text="Сохранить" Margin="5,0,0,0" Foreground="White"/>
                         </StackPanel>
                     </Button>
                     <Button Style="{StaticResource MaterialDesignFlatButton}" Foreground="White" Command="{Binding LoadCommand}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <materialDesign:PackIcon Kind="FolderOpen" Width="16" Height="16"/>
-                            <TextBlock Text="Ð—Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚ÑŒ" Margin="8,0,0,0"/>
+                            <materialDesign:PackIcon Kind="FolderOpen" Width="20" Height="20"/>
+                            <TextBlock Text="Загрузить" Margin="5,0,0,0" Foreground="White"/>
                         </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" Foreground="White" Command="{Binding ToggleThemeCommand}" Margin="8,0,0,0" ToolTip="Переключить тему">
+                        <materialDesign:PackIcon Width="16" Height="16" Foreground="White">
+                            <materialDesign:PackIcon.Style>
+                                <Style TargetType="materialDesign:PackIcon">
+                                    <Setter Property="Kind" Value="WeatherSunny"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLightTheme}" Value="False">
+                                            <Setter Property="Kind" Value="WeatherNight"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </materialDesign:PackIcon.Style>
+                        </materialDesign:PackIcon>
                     </Button>
                 </StackPanel>
             </Grid>
         </materialDesign:ColorZone>
 
         <TabControl Grid.Row="1" Style="{StaticResource MaterialDesignTabControl}" materialDesign:ColorZoneAssist.Mode="PrimaryMid" ItemContainerStyle="{StaticResource CustomTabItemStyle}">
-            <TabItem Header="ÐšÐ¾Ð¼Ð¿Ð°Ð½Ð¸Ð¸">
+            <TabItem Header="Компании">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="360"/>
+                        <ColumnDefinition Width="400"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Margin="16,16,8,16">
-                        <materialDesign:Card Padding="16" Margin="0,0,0,16">
+                    <StackPanel Grid.Column="0" Margin="5,5,4,5">
+                        <materialDesign:Card Padding="5" Margin="0,0,0,5">
                             <StackPanel>
-                                <TextBox materialDesign:HintAssist.Hint="ÐŸÐ¾Ð¸ÑÐº" Text="{Binding CompanySearchText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
-                                <ComboBox Margin="0,16,0,0" Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                <Button Content="Добавить компанию"
+                                        Command="{Binding AddCompanyCommand}"
+                                        Style="{StaticResource MaterialDesignRaisedButton}"/>
+                                <TextBox Margin="0,12,0,0"
+                                         materialDesign:HintAssist.Hint="Поиск"
+                                         materialDesign:HintAssist.FloatingScale="1.01"
+                                         Text="{Binding CompanySearchText, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                         Foreground="{DynamicResource MaterialDesignBody}"
+                                         CaretBrush="{DynamicResource MaterialDesignBody}"
+                                         Padding="10"/>
+                                <ComboBox Margin="0,12,0,0"
+                                          materialDesign:HintAssist.FloatingScale="1.01"
+                                          materialDesign:HintAssist.Hint="Отношения"
+                                          Foreground="{DynamicResource MaterialDesignBody}"
+                                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
                                           ItemsSource="{Binding RelationshipStatusFilter}"
-                                          SelectedItem="{Binding SelectedRelationshipFilter}">
+                                          SelectedItem="{Binding SelectedRelationshipFilter}"
+                                          Padding="10">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={x:Static local:EnumDescriptionConverter.Instance}}"/>
+                                            <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <ComboBox Margin="0,8,0,0" Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                <ComboBox Margin="0,12,0,0" Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                          materialDesign:HintAssist.Hint="Платежеспособность"
+                                          materialDesign:HintAssist.FloatingScale="1.01"
+                                          Foreground="{DynamicResource MaterialDesignBody}"
                                           ItemsSource="{Binding PaymentAbilityFilter}"
-                                          SelectedItem="{Binding SelectedPaymentAbilityFilter}">
+                                          SelectedItem="{Binding SelectedPaymentAbilityFilter}"
+                                          Padding="10">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={x:Static local:EnumDescriptionConverter.Instance}}"/>
+                                            <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
-                                    <Button Content="Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ" Command="{Binding AddCompanyCommand}" Style="{StaticResource MaterialDesignRaisedButton}"/>
-                                </StackPanel>
                             </StackPanel>
                         </materialDesign:Card>
 
-                        <materialDesign:Card Margin="0" Padding="0">
+                        <materialDesign:Card>
                             <ListBox ItemsSource="{Binding FilteredCompanies}"
+                                     d:ItemsSource="{d:SampleData ItemCount=2}"
                                      SelectedItem="{Binding SelectedCompany}"
                                      Background="Transparent"
                                      BorderThickness="0"
                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Vertical"/>
+                                        <StackPanel Orientation="Vertical"/>
                                     </ItemsPanelTemplate>
                                 </ListBox.ItemsPanel>
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderBrush" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}">
+                                                        <ContentPresenter HorizontalAlignment="Stretch"
+                                                                          VerticalAlignment="Stretch"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="Transparent"/>
+                                                            <Setter Property="BorderBrush" Value="Transparent"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter Property="Background" Value="Transparent"/>
+                                                            <Setter Property="BorderBrush" Value="Transparent"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsKeyboardFocused" Value="True">
+                                                            <Setter Property="Background" Value="Transparent"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <controls:CompanyCard Margin="12"/>
+                                        <controls:CompanyCard HorizontalAlignment="Stretch"/>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
                         </materialDesign:Card>
                     </StackPanel>
 
-                    <ScrollViewer Grid.Column="1" Margin="0,16,16,16">
-                        <StackPanel>
-                            <materialDesign:Card Padding="16" Margin="0,0,0,16">
+                    <ScrollViewer Grid.Column="1" Margin="0,5,0,0">
+                        <materialDesign:Card Padding="5" Margin="4,0,0,16">
+                            <StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding SelectedCompany.Name, FallbackValue='Ð’Ñ‹Ð±ÐµÑ€Ð¸Ñ‚Ðµ ÐºÐ¾Ð¼Ð¿Ð°Ð½Ð¸ÑŽ'}" FontSize="20" FontWeight="Medium"/>
-                                    <Button Grid.Column="1" Content="Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ" Command="{Binding DeleteCompanyCommand}"
-                                            Visibility="{Binding SelectedCompany, Converter={x:Static local:NullToVisibilityConverter.Instance}, ConverterParameter=Inverse}"
-                                            Style="{StaticResource MaterialDesignOutlinedButton}"/>
-                                </Grid>
-                            </materialDesign:Card>
 
-                            <materialDesign:Card Padding="16" Margin="0,0,0,16">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-
-                                    <TextBox Grid.Row="0" Grid.Column="0" Margin="0,0,8,8" materialDesign:HintAssist.Hint="ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ" Text="{Binding SelectedCompany.Name}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" Margin="8,0,0,8" materialDesign:HintAssist.Hint="Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½" Text="{Binding SelectedCompany.Phone}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
-                                    <TextBox Grid.Row="1" Grid.Column="0" Margin="0,0,8,8" materialDesign:HintAssist.Hint="Ð¡Ð°Ð¹Ñ‚" Text="{Binding SelectedCompany.Website}" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
-                                    <customControls:ColorPickerControl Grid.Row="1" Grid.Column="1" Margin="8,0,0,8" SelectedColorText="{Binding SelectedCompany.CardColor}"/>
-                                    <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,8,0,0">
-                                        <TextBox Width="220" materialDesign:HintAssist.Hint="Ð›Ð¾Ð³Ð¾Ñ‚Ð¸Ð¿" Text="{Binding SelectedCompany.LogoPath}" IsReadOnly="True" Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
-                                        <Button Content="Ð’Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ" Command="{Binding SelectLogoCommand}" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="8,0,0,0"/>
-                                        <Button Content="Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ" Command="{Binding RemoveLogoCommand}" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="8,0,0,0"/>
-                                    </StackPanel>
+                                    <DockPanel LastChildFill="True">
+                                        <!-- Логотип -->
+                                        <Border Grid.Column="0"
+                                                Width="100"
+                                                Height="100"
+                                                CornerRadius="25" 
+                                                Background="{Binding SelectedCompany.CardColor, Converter={x:Static converters:ColorToBrushConverter.Instance}}"
+                                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" ClipToBounds="True">
+                                            <Image Source="{Binding SelectedCompany.LogoPath, Converter={x:Static converters:LogoPathToImageConverter.Instance}}"
+                                                   Stretch="Uniform"
+                                                   Visibility="{Binding SelectedCompany.LogoPath, Converter={x:Static converters:StringNullOrEmptyToVisibilityConverter.Instance}, ConverterParameter=Inverse}">
+                                                <Image.Clip>
+                                                    <RectangleGeometry RadiusX="25"
+                                                                       RadiusY="25"
+                                                                       Rect="0,0,100,100"/>
+                                                </Image.Clip>
+                                            </Image>
+                                        </Border>
+                                        <TextBlock Text="{Binding SelectedCompany.Name, FallbackValue='Выберите компанию'}"
+                                                       Margin="10,0,0,0"
+                                                       VerticalAlignment="Center"
+                                                       FontSize="20"
+                                                       FontWeight="Medium"/>
+                                    </DockPanel>
+                                    <Button Grid.Column="1" Content="Удалить компанию" Command="{Binding DeleteCompanyCommand}"
+                                                d:Visibility="Visible"
+                                                VerticalAlignment="Top"
+                                                Visibility="{Binding SelectedCompany, Converter={x:Static converters:NullToVisibilityConverter.Instance}, ConverterParameter=Inverse}"
+                                                Style="{StaticResource MaterialDesignOutlinedButton}" BorderBrush="{StaticResource ErrorBrush}" Foreground="{StaticResource ErrorBrush}"/>
                                 </Grid>
-                            </materialDesign:Card>
-                            <materialDesign:Card Padding="16" Margin="0,0,0,16">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                        <TextBlock Text="Ð¡Ð¾Ñ‚Ñ€ÑƒÐ´Ð½Ð¸ÐºÐ¸" FontSize="16" FontWeight="Medium"/>
-                                        <Button Content="Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ" Command="{Binding AddEmployeeCommand}" Style="{StaticResource MaterialDesignRaisedButton}" Margin="16,0,0,0"/>
-                                        <Button Content="Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ" Command="{Binding RemoveEmployeeCommand}" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="8,0,0,0"/>
-                                    </StackPanel>
-                                    <DataGrid ItemsSource="{Binding Employees}"
-                                              SelectedItem="{Binding SelectedEmployee}"
-                                              AutoGenerateColumns="False"
-                                              CanUserAddRows="False"
-                                              Margin="0,0,0,8">
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn Header="Ð˜Ð¼Ñ" Binding="{Binding FullName}" Width="200"/>
-                                            <DataGridTextColumn Header="Ð”Ð¾Ð»Ð¶Ð½Ð¾ÑÑ‚ÑŒ" Binding="{Binding Position}" Width="200"/>
-                                            <DataGridTextColumn Header="Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½" Binding="{Binding Phone}" Width="140"/>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
+
+                                <StackPanel Margin="0,8,0,0">
+                                    <DockPanel LastChildFill="False">
+                                        <Button Content="Изменить логотип"
+                                                    Command="{Binding SelectLogoCommand}"
+                                                    Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                                        <Button Content="Удалить логотип"
+                                                    Command="{Binding RemoveLogoCommand}"
+                                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                    BorderBrush="{StaticResource ErrorBrush}"
+                                                    Foreground="{StaticResource ErrorBrush}"
+                                                    Margin="8,0,0,0"/>
+                                        <customControls:ColorPickerControl Width="200"
+                                                                               DockPanel.Dock="Right"
+                                                                               HorizontalAlignment="Right"
+                                                                               SelectedColorText="{Binding SelectedCompany.CardColor}"/>
+                                    </DockPanel>
+
+
+                                    <TextBox materialDesign:HintAssist.Hint="Название"
+                                             materialDesign:HintAssist.FloatingScale="1.01"
+                                             Text="{Binding SelectedCompany.Name}"
+                                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             CaretBrush="{DynamicResource MaterialDesignBody}"
+                                             Padding="8"
+                                             Margin="0,10,0,0"/>
+                                    <TextBox materialDesign:HintAssist.Hint="Телефон"
+                                             materialDesign:HintAssist.FloatingScale="1.01"
+                                             Text="{Binding SelectedCompany.Phone}"
+                                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             CaretBrush="{DynamicResource MaterialDesignBody}"
+                                             Padding="8"
+                                             Margin="0,10,0,0"/>
+                                    <TextBox materialDesign:HintAssist.Hint="Сайт"
+                                             materialDesign:HintAssist.FloatingScale="1.01"
+                                             Text="{Binding SelectedCompany.Website}"
+                                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             CaretBrush="{DynamicResource MaterialDesignBody}"
+                                             Padding="8"
+                                             Margin="0,10,0,0"/>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                    </Grid>
                                 </StackPanel>
-                            </materialDesign:Card>
 
-                            <materialDesign:Card Padding="16" Margin="0,0,0,16">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                        <TextBlock Text="Ð—Ð°ÐºÐ°Ð·Ñ‹" FontSize="16" FontWeight="Medium"/>
-                                        <Button Content="Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ" Command="{Binding AddOrderCommand}" Style="{StaticResource MaterialDesignRaisedButton}" Margin="16,0,0,0"/>
-                                    </StackPanel>
-                                    <DataGrid x:Name="OrdersDataGrid"
-                                              ItemsSource="{Binding Orders}"
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,4">
+                                    <TextBlock Text="Сотрудники" FontSize="16" FontWeight="Medium" VerticalAlignment="Center"/>
+                                    <Button Content="Добавить" Command="{Binding AddEmployeeCommand}" Style="{StaticResource MaterialDesignRaisedButton}" Margin="16,0,0,0"/>
+                                </StackPanel>
+                                <DataGrid ItemsSource="{Binding SelectedCompany.Employees}"
+                                          d:ItemsSource="{d:SampleData ItemCount=2}"
+                                          SelectedItem="{Binding SelectedEmployee}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          Margin="0,0,0,8"
+                                          GridLinesVisibility="Vertical"
+                                          VerticalGridLinesBrush="#22000000"
+                                          HorizontalGridLinesBrush="Transparent"
+                                          CellStyle="{StaticResource CenteredCellStyle}">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Header="" Width="75" CanUserResize="False">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Command="{Binding DataContext.SelectEmployeeAvatarCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                            CommandParameter="{Binding}"
+                                                            Cursor="Hand"
+                                                            BorderThickness="1"
+                                                            Background="Transparent"
+                                                            Padding="0"
+                                                            Height="60"
+                                                            Width="60"
+                                                            Margin="-8"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center">
+                                                        <Image Source="{Binding AvatarPath, Converter={x:Static converters:LogoPathToImageConverter.Instance}}"
+                                                               Stretch="UniformToFill"
+                                                               VerticalAlignment="Center"
+                                                               HorizontalAlignment="Center">
+                                                            <Image.Clip>
+                                                                <RectangleGeometry RadiusX="15"
+                                                                                   RadiusY="15"
+                                                                                   Rect="0,0,60,60"/>
+                                                            </Image.Clip>
+                                                        </Image>
+                                                        <Button.Resources>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="CornerRadius" Value="15"/>
+                                                                <Setter Property="Background" Value="LightGray"/>
+                                                            </Style>
+                                                        </Button.Resources>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTextColumn Header="Имя"
+                                                                Binding="{Binding FullName}"
+                                                                Width="200">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Должность"
+                                                                Binding="{Binding Position}"
+                                                                Width="200">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Телефон"
+                                                                Binding="{Binding Phone}"
+                                                                Width="140">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTemplateColumn Width="65" Header="" CanUserResize="False">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Command="{Binding DataContext.RemoveEmployeeCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                                BorderBrush="{StaticResource ErrorBrush}"
+                                                                Foreground="{StaticResource ErrorBrush}"
+                                                                Padding="0"
+                                                                Width="28"
+                                                                Height="28">
+                                                        <materialDesign:PackIcon Kind="Close" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock Text="Заказы" FontSize="16" FontWeight="Medium" VerticalAlignment="Center"/>
+                                    <Button Content="Добавить"
+                                                Command="{Binding AddOrderCommand}"
+                                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                                Margin="16,0,0,0"/>
+                                </StackPanel>
+
+                                <DataGrid x:Name="OrdersDataGrid"
+                                              ItemsSource="{Binding SelectedCompany.Orders}"
+                                              d:ItemsSource="{d:SampleData ItemCount=1}"
                                               SelectedItem="{Binding SelectedOrder}"
                                               AutoGenerateColumns="False"
                                               CanUserAddRows="False"
                                               RowEditEnding="OrdersDataGrid_RowEditEnding"
-                                              Margin="0,0,0,8">
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn Header="ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ" Binding="{Binding Name}" Width="200"/>
-                                            <DataGridTextColumn Header="Ð¡Ñ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ" Binding="{Binding Price, StringFormat='{}{0:N2}'}" Width="120"/>
-                                            <DataGridTextColumn Header="Ð¡Ñ‚Ð°Ñ‚ÑƒÑ" Binding="{Binding ExecutionStatus, Converter={x:Static local:EnumDescriptionConverter.Instance}}" Width="150"/>
-                                            <DataGridTextColumn Header="Ð¡Ð¾Ð·Ð´Ð°Ð½" Binding="{Binding CreatedDate, StringFormat='{}{0:dd.MM.yyyy}'}" Width="120"/>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </StackPanel>
-                            </materialDesign:Card>
+                                              Margin="0,0,0,8"
+                                              GridLinesVisibility="Vertical"
+                                              VerticalGridLinesBrush="#22000000"
+                                              HorizontalGridLinesBrush="Transparent"
+                                              CellStyle="{StaticResource CenteredCellStyle}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Название"
+                                                                Binding="{Binding Name}"
+                                                                Width="200">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
 
-                            <materialDesign:Card Padding="16" Margin="0,0,0,16">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12" VerticalAlignment="Center">
-                                        <TextBlock Text="Ð¢ÐµÐºÑƒÑ‰Ð°Ñ Ð·Ð°Ð´Ð°Ñ‡Ð°" FontSize="16" FontWeight="Medium"/>
-                                        <Button Content="Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ" Command="{Binding AddTaskCommand}" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="16,0,0,0"/>
-                                        <Button Content="Ð¡Ñ‚Ð°Ñ€Ñ‚" Command="{Binding StartTimerCommand}" Style="{StaticResource MaterialDesignRaisedButton}" Margin="16,0,0,0" Background="{DynamicResource PrimaryHueMidBrush}"/>
-                                        <Button Content="Ð¡Ñ‚Ð¾Ð¿" Command="{Binding StopTimerCommand}" Style="{StaticResource MaterialDesignRaisedButton}" Margin="8,0,0,0" Background="{DynamicResource ValidationErrorBrush}"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                        <TextBlock Text="{Binding TimerStatus}" FontSize="14" Margin="0,0,16,0"/>
-                                        <TextBlock Text="{Binding SelectedTask.HoursSpent, StringFormat='{}{0:N2} Ñ‡'}" FontSize="18" FontWeight="SemiBold"/>
-                                    </StackPanel>
-                                    <DataGrid ItemsSource="{Binding Tasks}" SelectedItem="{Binding SelectedTask}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,8">
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn Header="ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ" Binding="{Binding Name}" Width="200"/>
-                                            <DataGridTextColumn Header="Ð¡Ñ‚Ð°Ñ‚ÑƒÑ" Binding="{Binding Status, Converter={x:Static local:EnumDescriptionConverter.Instance}}" Width="120"/>
-                                            <DataGridTextColumn Header="Ð¡Ñ‚Ð°Ñ€Ñ‚" Binding="{Binding StartDate, StringFormat='{}{0:dd.MM.yyyy}'}" Width="120"/>
-                                            <DataGridTextColumn Header="Ð§Ð°ÑÑ‹" Binding="{Binding HoursSpent, StringFormat='{}{0:N2}'}" Width="120"/>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </StackPanel>
-                            </materialDesign:Card>
+                                        <DataGridTextColumn Header="Стоимость"
+                                                                Binding="{Binding Price, StringFormat='{}{0:N2}'}"
+                                                                Width="120">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
 
-                            <materialDesign:Card Padding="16">
-                                <StackPanel>
-                                    <TextBlock Text="ÐŸÑ€Ð¸Ð»Ð¾Ð¶ÐµÐ½Ð½Ñ‹Ðµ Ñ„Ð°Ð¹Ð»Ñ‹" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                        <Button Content="Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ" Command="{Binding AddFileCommand}" Style="{StaticResource MaterialDesignRaisedButton}" Margin="0,0,8,0"/>
-                                        <Button Content="Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ" Command="{Binding RemoveFileCommand}" Style="{StaticResource MaterialDesignOutlinedButton}"/>
-                                    </StackPanel>
-                                    <DataGrid ItemsSource="{Binding AttachedFiles}" SelectedItem="{Binding SelectedFile}" AutoGenerateColumns="False" CanUserAddRows="False">
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn Header="Ð˜Ð¼Ñ" Binding="{Binding Name}" Width="200"/>
-                                            <DataGridTextColumn Header="Ð¢Ð¸Ð¿" Binding="{Binding FileType, Converter={x:Static local:EnumDescriptionConverter.Instance}}" Width="120"/>
-                                            <DataGridTextColumn Header="ÐŸÑƒÑ‚ÑŒ" Binding="{Binding Path}" Width="*"/>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
+                                        <DataGridTemplateColumn Header="Статус выполнения" Width="170">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock VerticalAlignment="Center"
+                                                                   Text="{Binding ExecutionStatus, Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                            <DataGridTemplateColumn.CellEditingTemplate>
+                                                <DataTemplate>
+                                                    <ComboBox SelectedValue="{Binding ExecutionStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                  ItemsSource="{Binding Source={StaticResource OrderExecutionStatuses}}"
+                                                                  Height="200">
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellEditingTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTextColumn Header="Создан"
+                                                                Binding="{Binding CreatedDate, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                                                Width="120">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTemplateColumn Width="65" Header="" CanUserResize="False">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Command="{Binding DataContext.RemoveOrderCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                                BorderBrush="{StaticResource ErrorBrush}"
+                                                                Foreground="{StaticResource ErrorBrush}"
+                                                                Height="28"
+                                                                Width="28"
+                                                                Padding="0">
+                                                        <materialDesign:PackIcon Kind="Close" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock Text="Приложенные файлы" FontSize="16" FontWeight="Medium" VerticalAlignment="Center"/>
+                                    <Button Content="Добавить"
+                                                Command="{Binding AddFileCommand}"
+                                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                                Margin="16,0,8,0"/>
                                 </StackPanel>
-                            </materialDesign:Card>
-                        </StackPanel>
+                                <DataGrid ItemsSource="{Binding SelectedOrder.AttachedFiles}"
+                                              d:ItemsSource="{d:SampleData ItemCount=1}"
+                                              SelectedItem="{Binding SelectedFile}"
+                                              AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              GridLinesVisibility="Vertical"
+                                              VerticalGridLinesBrush="#22000000"
+                                              HorizontalGridLinesBrush="Transparent"
+                                              CellStyle="{StaticResource CenteredCellStyle}">
+                                    <DataGrid.RowStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                            <Setter Property="FontStyle" Value="Normal"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding FilePath, Converter={x:Static converters:PathExistsConverter.Instance}}" Value="False">
+                                                    <Setter Property="Foreground" Value="Gray"/>
+                                                    <Setter Property="FontStyle" Value="Italic"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.RowStyle>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Имя"
+                                                                Binding="{Binding Name}"
+                                                                Width="200">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTextColumn Header="Тип"
+                                                                Binding="{Binding FileType, Converter={x:Static converters:EnumDescriptionConverter.Instance}}"
+                                                                Width="120">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTextColumn Header="Путь"
+                                                                Binding="{Binding FilePath}"
+                                                                Width="*">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTemplateColumn Header="" Width="150" CanUserResize="False">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="Указать путь"
+                                                                Command="{Binding DataContext.RepathFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                                Visibility="{Binding FilePath, Converter={x:Static converters:PathExistsConverter.Instance}, ConverterParameter=Inverse}"
+                                                                Padding="0"
+                                                                Height="28"
+                                                                Width="110"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="" Width="120" CanUserResize="False">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="Открыть"
+                                                                Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                                IsEnabled="{Binding FilePath, Converter={x:Static converters:PathExistsConverter.Instance}}"
+                                                                Padding="0"
+                                                                Height="28"
+                                                                Width="80"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Width="65" Header="" CanUserResize="False">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Command="{Binding DataContext.RemoveFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                                BorderBrush="{StaticResource ErrorBrush}"
+                                                                Foreground="{StaticResource ErrorBrush}"
+                                                                Height="28"
+                                                                Width="28"
+                                                                Padding="0">
+                                                        <materialDesign:PackIcon Kind="Close" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </materialDesign:Card>
                     </ScrollViewer>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Ð—Ð°ÐºÐ°Ð·Ñ‹ &amp; Ð·Ð°Ð´Ð°Ñ‡Ð¸">
-                <Grid Margin="16">
+            <TabItem Header="Заказы">
+                <materialDesign:Card Grid.Column="0" Padding="5" Margin="5">
+                    <StackPanel Margin="0,5,0,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBox Width="220"
+                                     Padding="10"
+                                     Margin="0,0,5,0"
+                                     materialDesign:HintAssist.Hint="Поиск по заказам"
+                                     materialDesign:HintAssist.FloatingScale="1.01"
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                     Foreground="{DynamicResource MaterialDesignBody}"
+                                     CaretBrush="{DynamicResource MaterialDesignBody}"
+                                     Text="{Binding OrderSearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                            <ComboBox materialDesign:HintAssist.Hint="Компания"
+                                      materialDesign:HintAssist.FloatingScale="1.01"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
+                                      Width="200"
+                                      Padding="10"
+                                      Margin="0,0,5,0" Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                      ItemsSource="{Binding Companies}"
+                                      SelectedItem="{Binding SelectedCompanyFilter}"
+                                      DisplayMemberPath="Name"/>
+                            <ComboBox materialDesign:HintAssist.Hint="Статус заказа"
+                                      materialDesign:HintAssist.FloatingScale="1.01"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
+                                      Width="200" 
+                                      Padding="10"
+                                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                      ItemsSource="{Binding OrderStatusFilter}"
+                                      SelectedItem="{Binding SelectedOrderStatusFilter}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <TextBlock Text="Все заказы"
+                                                   FontSize="16"
+                                                   Margin="0,10,0,0"
+                                                   FontWeight="Medium"
+                                                   VerticalAlignment="Center"/>
+                        <DataGrid ItemsSource="{Binding FilteredOrders}"
+                                                  SelectedItem="{Binding SelectedOrder}"
+                                                  AutoGenerateColumns="False"
+                                                  CanUserAddRows="False"
+                                                  GridLinesVisibility="Vertical"
+                                                  VerticalGridLinesBrush="#22000000"
+                                                  HorizontalGridLinesBrush="Transparent"
+                                                  CellStyle="{StaticResource CenteredCellStyle}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Компания" Binding="{Binding ParentCompany.Name}" IsReadOnly="True" Width="200"/>
+                                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="200"/>
+                                <DataGridTemplateColumn Header="Статус" Width="150">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding ExecutionStatus, Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <ComboBox SelectedValue="{Binding ExecutionStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              ItemsSource="{Binding Source={StaticResource OrderExecutionStatuses}}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Стоимость" Binding="{Binding Price, StringFormat='{}{0:N2}'}" Width="120"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </materialDesign:Card>
+            </TabItem>
+
+            <TabItem Header="Задачи">
+                <Grid Margin="5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <materialDesign:Card Grid.Row="0" Padding="16" Margin="0,0,0,16">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBox Width="220" Margin="0,0,16,0" materialDesign:HintAssist.Hint="ÐŸÐ¾Ð¸ÑÐº Ð¿Ð¾ Ð·Ð°ÐºÐ°Ð·Ð°Ð¼" Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                     Text="{Binding OrderSearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                            <ComboBox Width="200" Margin="0,0,16,0" Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                      ItemsSource="{Binding Companies}"
-                                      SelectedItem="{Binding SelectedCompanyFilter}"
-                                      DisplayMemberPath="Name"/>
-                            <ComboBox Width="200" Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                      ItemsSource="{Binding OrderStatusFilter}"
-                                      SelectedItem="{Binding SelectedOrderStatusFilter}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Converter={x:Static local:EnumDescriptionConverter.Instance}}"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
+                    <materialDesign:Card Padding="5" Margin="0,0,0,8">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4" VerticalAlignment="Center">
+                                <TextBlock Text="Текущая задача"
+                                           FontSize="16"
+                                           FontWeight="Medium"
+                                           VerticalAlignment="Center"/>
+                                <Button Content="Старт"
+                                        Command="{Binding StartTimerCommand}"
+                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                        Margin="16,0,0,0"
+                                        Background="{DynamicResource PrimaryHueMidBrush}"/>
+                                <Button Content="Стоп"
+                                        Command="{Binding StopTimerCommand}"
+                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                        Margin="8,0,0,0"
+                                        Background="{DynamicResource ValidationErrorBrush}"/>
+                                <TextBlock Text="{Binding TimerStatus}"
+                                           FontSize="14"
+                                           Margin="16,0,8,0"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding SelectedTask.HoursSpent, StringFormat='{}{0:N2} ч'}" VerticalAlignment="Center" FontSize="18" FontWeight="SemiBold"/>
+                            </StackPanel>
+                            <DataGrid ItemsSource="{Binding SelectedOrder.Tasks}"
+                                      d:ItemsSource="{d:SampleData ItemCount=1}"
+                                      SelectedItem="{Binding SelectedTask}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserSortColumns="False"
+                                      CanUserDeleteRows="False"
+                                      CanUserReorderColumns="False"
+                                      CanUserResizeRows="False"
+                                      IsReadOnly="True"
+                                      GridLinesVisibility="Vertical"
+                                      VerticalGridLinesBrush="#22000000"
+                                      CellStyle="{StaticResource CenteredCellStyle}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="200"/>
+                                    <DataGridTextColumn Header="Статус" Binding="{Binding Status, Converter={x:Static converters:EnumDescriptionConverter.Instance}}" Width="120"/>
+                                    <DataGridTextColumn Header="Старт" Binding="{Binding StartDate, StringFormat='{}{0:dd.MM.yyyy}'}" Width="120"/>
+                                    <DataGridTextColumn Header="Часы" Binding="{Binding HoursSpent, StringFormat='{}{0:N2}'}" Width="120"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </StackPanel>
                     </materialDesign:Card>
 
-                    <Grid Grid.Row="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="3*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <materialDesign:Card Grid.Column="0" Padding="16" Margin="0,0,16,0">
-                            <StackPanel>
-                                <TextBlock Text="Ð’ÑÐµ Ð·Ð°ÐºÐ°Ð·Ñ‹" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
-                                <DataGrid ItemsSource="{Binding FilteredOrders}" SelectedItem="{Binding SelectedOrder}" AutoGenerateColumns="False" CanUserAddRows="False">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="ÐšÐ¾Ð¼Ð¿Ð°Ð½Ð¸Ñ" Binding="{Binding Company.Name}" Width="200"/>
-                                        <DataGridTextColumn Header="ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ" Binding="{Binding Name}" Width="200"/>
-                                        <DataGridTextColumn Header="Ð¡Ñ‚Ð°Ñ‚ÑƒÑ" Binding="{Binding ExecutionStatus, Converter={x:Static local:EnumDescriptionConverter.Instance}}" Width="150"/>
-                                        <DataGridTextColumn Header="Ð¡Ñ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ" Binding="{Binding Price, StringFormat='{}{0:N2}'}" Width="120"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
+                    <materialDesign:Card Grid.Row="1" Padding="5" Margin="0,0,0,5">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Все задачи" FontSize="16" FontWeight="Medium" VerticalAlignment="Bottom"/>
+                                <Button Content="Добавить"
+                                        Command="{Binding AddTaskCommand}"
+                                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                                        Margin="10,0,0,0"/>
                             </StackPanel>
-                        </materialDesign:Card>
-
-                        <materialDesign:Card Grid.Column="1" Padding="16">
-                            <StackPanel>
-                                <TextBlock Text="Ð’ÑÐµ Ð·Ð°Ð´Ð°Ñ‡Ð¸" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
-                                <DataGrid ItemsSource="{Binding AllTasks}" SelectedItem="{Binding SelectedTask}" AutoGenerateColumns="False" CanUserAddRows="False">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Ð—Ð°Ð´Ð°Ñ‡Ð°" Binding="{Binding Name}" Width="200"/>
-                                        <DataGridTextColumn Header="Ð—Ð°ÐºÐ°Ð·" Binding="{Binding Order.Name}" Width="200"/>
-                                        <DataGridTextColumn Header="ÐšÐ¾Ð¼Ð¿Ð°Ð½Ð¸Ñ" Binding="{Binding Order.Company.Name}" Width="200"/>
-                                        <DataGridTextColumn Header="Ð¡Ñ‚Ð°Ñ‚ÑƒÑ" Binding="{Binding Status, Converter={x:Static local:EnumDescriptionConverter.Instance}}" Width="120"/>
-                                        <DataGridTextColumn Header="Ð§Ð°ÑÑ‹" Binding="{Binding HoursSpent, StringFormat='{}{0:N2}'}" Width="80"/>
-                                        <DataGridTextColumn Header="Ð”Ð°Ñ‚Ð°" Binding="{Binding StartDate, StringFormat='{}{0:dd.MM.yyyy}'}" Width="100"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </StackPanel>
-                        </materialDesign:Card>
-                    </Grid>
+                            <DataGrid ItemsSource="{Binding AllTasks}"
+                                      SelectedItem="{Binding SelectedTask}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      GridLinesVisibility="Vertical"
+                                      HorizontalGridLinesBrush="Transparent">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Задача" Binding="{Binding Name}" Width="200"/>
+                                    <DataGridTextColumn Header="Заказ" Binding="{Binding Order.Name}" Width="200"/>
+                                    <DataGridTextColumn Header="Компания" Binding="{Binding Order.Company.Name}" Width="200"/>
+                                    <DataGridTextColumn Header="Статус" Binding="{Binding Status, Converter={x:Static converters:EnumDescriptionConverter.Instance}}" Width="120"/>
+                                    <DataGridTextColumn Header="Часы" Binding="{Binding HoursSpent, StringFormat='{}{0:N2}'}" Width="80"/>
+                                    <DataGridTextColumn Header="Дата" Binding="{Binding StartDate, StringFormat='{}{0:dd.MM.yyyy}'}" Width="100"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </materialDesign:Card>
                 </Grid>
             </TabItem>
-            <TabItem Header="Ð¡Ñ‚Ð°Ñ‚Ð¸ÑÑ‚Ð¸ÐºÐ°">
-                <ScrollViewer Padding="16">
+
+            <TabItem Header="Статистика">
+                <ScrollViewer Padding="5">
                     <StackPanel>
-                        <materialDesign:Card Padding="16" Margin="0,0,0,16">
+                        <materialDesign:Card Padding="5" Margin="5">
                             <StackPanel>
-                                <TextBlock Text="ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸ Ð°Ð½Ð°Ð»Ð¸Ñ‚Ð¸ÐºÐ¸" FontSize="16" FontWeight="Medium"/>
-                                <WrapPanel Margin="0,16,0,0" ItemHeight="Auto">
-                                    <ComboBox Width="220" Margin="0,0,16,0" Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                              ItemsSource="{Binding StatisticsPeriods}" SelectedItem="{Binding SelectedStatisticsPeriod}" DisplayMemberPath="DisplayName"/>
-                                    <ComboBox Width="240" Margin="0,0,16,0" Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                              ItemsSource="{Binding StatisticsSortOptions}" SelectedItem="{Binding SelectedStatisticsSort}" DisplayMemberPath="DisplayName"/>
-                                    <TextBox Width="220" Margin="0,0,16,0" Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                             materialDesign:HintAssist.Hint="ÐŸÐ¾Ð¸ÑÐº Ð¿Ð¾ ÐºÐ¾Ð¼Ð¿Ð°Ð½Ð¸Ð¸"
+                                <WrapPanel Margin="0,5,0,0" ItemHeight="Auto">
+                                    <ComboBox Width="220"
+                                              Padding="10"
+                                              Margin="0,0,16,0"
+                                              Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                              ItemsSource="{Binding StatisticsPeriods}"
+                                              SelectedItem="{Binding SelectedStatisticsPeriod}"
+                                              Foreground="{DynamicResource MaterialDesignBody}"
+                                              DisplayMemberPath="DisplayName"/>
+                                    <ComboBox Width="240"
+                                              Padding="10"
+                                              Margin="0,0,16,0"
+                                              materialDesign:HintAssist.Hint="StatisticsSortOptions?"
+                                              Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                              ItemsSource="{Binding StatisticsSortOptions}"
+                                              SelectedItem="{Binding SelectedStatisticsSort}"
+                                              Foreground="{DynamicResource MaterialDesignBody}"
+                                              DisplayMemberPath="DisplayName"/>
+                                    <TextBox Width="220"
+                                             Padding="10"
+                                             Margin="0,0,16,0"
+                                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             CaretBrush="{DynamicResource MaterialDesignBody}"
+                                             materialDesign:HintAssist.Hint="Поиск по компании"
                                              Text="{Binding StatisticsSearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,8,0,0">
-                                        <TextBlock Text="ÐœÐ¸Ð½. Ð·Ð°ÐºÐ°Ð·Ð¾Ð²:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4,0,0">
+                                        <TextBlock Text="Мин. заказов:" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                         <Slider Width="180" Minimum="0" Maximum="50" TickFrequency="1" IsSnapToTickEnabled="True"
                                                 Value="{Binding StatisticsMinOrders, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         <TextBlock Text="{Binding StatisticsMinOrders, StringFormat='{}{0:0}'}" VerticalAlignment="Center" FontWeight="SemiBold" Margin="8,0,0,0"/>
@@ -330,27 +813,27 @@
                         <materialDesign:Card Padding="16" Margin="0,0,0,16">
                             <UniformGrid Columns="3" Rows="2" Margin="0,0,0,8">
                                 <StackPanel Margin="8,4">
-                                    <TextBlock Text="ÐšÐ¾Ð¼Ð¿Ð°Ð½Ð¸Ð¹" FontSize="12" Opacity="0.7"/>
+                                    <TextBlock Text="Компаний" FontSize="12" Opacity="0.7"/>
                                     <TextBlock Text="{Binding TotalCompaniesCount}" FontSize="24" FontWeight="SemiBold"/>
                                 </StackPanel>
                                 <StackPanel Margin="8,4">
-                                    <TextBlock Text="Ð—Ð°ÐºÐ°Ð·Ð¾Ð²" FontSize="12" Opacity="0.7"/>
+                                    <TextBlock Text="Заказов" FontSize="12" Opacity="0.7"/>
                                     <TextBlock Text="{Binding TotalOrdersCount}" FontSize="24" FontWeight="SemiBold"/>
                                 </StackPanel>
                                 <StackPanel Margin="8,4">
-                                    <TextBlock Text="Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¾" FontSize="12" Opacity="0.7"/>
+                                    <TextBlock Text="Завершено" FontSize="12" Opacity="0.7"/>
                                     <TextBlock Text="{Binding PaidOrdersCount}" FontSize="24" FontWeight="SemiBold"/>
                                 </StackPanel>
                                 <StackPanel Margin="8,4">
-                                    <TextBlock Text="Ð’Ñ‹Ñ€ÑƒÑ‡ÐºÐ°" FontSize="12" Opacity="0.7"/>
+                                    <TextBlock Text="Выручка" FontSize="12" Opacity="0.7"/>
                                     <TextBlock Text="{Binding TotalMoneyEarned, StringFormat='{}{0:N0}'}" FontSize="24" FontWeight="SemiBold"/>
                                 </StackPanel>
                                 <StackPanel Margin="8,4">
-                                    <TextBlock Text="Ð’Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¾ Ð·Ð°Ð´Ð°Ñ‡" FontSize="12" Opacity="0.7"/>
+                                    <TextBlock Text="Выполнено задач" FontSize="12" Opacity="0.7"/>
                                     <TextBlock Text="{Binding CompletedTasksCount}" FontSize="24" FontWeight="SemiBold"/>
                                 </StackPanel>
                                 <StackPanel Margin="8,4">
-                                    <TextBlock Text="Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¸Ðµ Ð·Ð°Ð´Ð°Ñ‡" FontSize="12" Opacity="0.7"/>
+                                    <TextBlock Text="Завершение задач" FontSize="12" Opacity="0.7"/>
                                     <TextBlock Text="{Binding TaskCompletionPercentage, StringFormat='{}{0:N0}%'}" FontSize="24" FontWeight="SemiBold"/>
                                 </StackPanel>
                             </UniformGrid>
@@ -369,7 +852,7 @@
 
                             <materialDesign:Card Grid.Row="0" Grid.ColumnSpan="2" Padding="16" Margin="0,0,0,16">
                                 <StackPanel>
-                                    <TextBlock Text="Ð”Ð¸Ð½Ð°Ð¼Ð¸ÐºÐ° Ð²Ñ‹Ñ€ÑƒÑ‡ÐºÐ¸ Ð¿Ð¾ Ð¼ÐµÑÑÑ†Ð°Ð¼" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
+                                    <TextBlock Text="Динамика выручки по месяцам" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
                                     <lvc:CartesianChart Series="{Binding RevenueTrendSeries}"
                                                         XAxes="{Binding RevenueTrendXAxis}"
                                                         YAxes="{Binding RevenueTrendYAxis}"
@@ -380,7 +863,7 @@
 
                             <materialDesign:Card Grid.Row="1" Grid.Column="0" Padding="16" Margin="0,0,16,0">
                                 <StackPanel>
-                                    <TextBlock Text="Ð¡Ñ‚Ð°Ñ‚ÑƒÑÑ‹ Ð·Ð°ÐºÐ°Ð·Ð¾Ð²" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
+                                    <TextBlock Text="Статусы заказов" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
                                     <lvc:CartesianChart Series="{Binding OrdersByStatusSeries}"
                                                         XAxes="{Binding OrdersByStatusXAxis}"
                                                         YAxes="{Binding OrdersByStatusYAxis}"
@@ -391,7 +874,7 @@
 
                             <materialDesign:Card Grid.Row="1" Grid.Column="1" Padding="16">
                                 <StackPanel>
-                                    <TextBlock Text="ÐÐ°Ð³Ñ€ÑƒÐ·ÐºÐ° Ð¿Ð¾ Ð·Ð°Ð´Ð°Ñ‡Ð°Ð¼" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
+                                    <TextBlock Text="Нагрузка по задачам" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
                                     <lvc:CartesianChart Series="{Binding TasksStatusSeries}"
                                                         XAxes="{Binding TasksStatusXAxis}"
                                                         YAxes="{Binding TasksStatusYAxis}"
@@ -402,7 +885,7 @@
 
                             <materialDesign:Card Grid.Row="2" Grid.ColumnSpan="2" Padding="16" Margin="0,16,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="Ð”Ð¾Ð»Ñ Ð²Ñ‹Ñ€ÑƒÑ‡ÐºÐ¸ Ð¿Ð¾ ÐºÐ¾Ð¼Ð¿Ð°Ð½Ð¸ÑÐ¼" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
+                                    <TextBlock Text="Доля выручки по компаниям" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
                                     <lvc:PieChart Series="{Binding RevenueByCompanySeries}" LegendPosition="Right" Height="260"/>
                                 </StackPanel>
                             </materialDesign:Card>
@@ -410,24 +893,24 @@
 
                         <materialDesign:Card Padding="16">
                             <StackPanel>
-                                <TextBlock Text="Ð˜Ñ‚Ð¾Ð³Ð¸ Ð¿Ð¾ ÐºÐ¾Ð¼Ð¿Ð°Ð½Ð¸ÑÐ¼" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
+                                <TextBlock Text="Итоги по компаниям" FontSize="16" FontWeight="Medium" Margin="0,0,0,12"/>
                                 <DataGrid ItemsSource="{Binding CompanyRevenueView}"
                                           AutoGenerateColumns="False"
                                           CanUserAddRows="False"
                                           IsReadOnly="True">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="ÐšÐ¾Ð¼Ð¿Ð°Ð½Ð¸Ñ" Binding="{Binding CompanyName}" Width="200"/>
-                                        <DataGridTextColumn Header="Ð—Ð°ÐºÐ°Ð·Ñ‹" Binding="{Binding OrdersCount}" Width="80"/>
-                                        <DataGridTextColumn Header="ÐÐºÑ‚Ð¸Ð²Ð½Ñ‹Ðµ" Binding="{Binding ActiveOrdersCount}" Width="90"/>
-                                        <DataGridTextColumn Header="Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¾" Binding="{Binding CompletedOrdersCount}" Width="100"/>
-                                        <DataGridTextColumn Header="Ð’Ñ‹Ñ€ÑƒÑ‡ÐºÐ°" Binding="{Binding TotalRevenue, StringFormat='{}{0:N0}'}" Width="120"/>
-                                        <DataGridTextColumn Header="Ð¡Ñ€ÐµÐ´Ð½Ð¸Ð¹ Ñ‡ÐµÐº" Binding="{Binding AverageOrderValue, StringFormat='{}{0:N0}'}" Width="120"/>
-                                        <DataGridTextColumn Header="Ð§Ð°ÑÑ‹" Binding="{Binding TotalHours, StringFormat='{}{0:N1}'}" Width="90"/>
-                                        <DataGridTextColumn Header="Ð¡Ñ‚Ð°Ð²ÐºÐ°" Binding="{Binding AverageRate, StringFormat='{}{0:N1}'}" Width="90"/>
-                                        <DataGridTextColumn Header="Ð ÐµÐ½Ñ‚Ð°Ð±ÐµÐ»ÑŒÐ½Ð¾ÑÑ‚ÑŒ" Binding="{Binding Profitability, Converter={x:Static local:EnumDescriptionConverter.Instance}}" Width="130"/>
-                                        <DataGridTextColumn Header="ÐžÑ‚Ð½Ð¾ÑˆÐµÐ½Ð¸Ñ" Binding="{Binding Relationship}" Width="120"/>
-                                        <DataGridTextColumn Header="ÐŸÐ»Ð°Ñ‚ÐµÐ¶ÐµÑÐ¿Ð¾ÑÐ¾Ð±Ð½Ð¾ÑÑ‚ÑŒ" Binding="{Binding PaymentAbility}" Width="150"/>
-                                        <DataGridTextColumn Header="ÐŸÐ¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¹ Ð·Ð°ÐºÐ°Ð·" Binding="{Binding LastOrderDate, StringFormat='{}{0:dd.MM.yyyy}'}" Width="130"/>
+                                        <DataGridTextColumn Header="Компания" Binding="{Binding CompanyName}" Width="200"/>
+                                        <DataGridTextColumn Header="Заказы" Binding="{Binding OrdersCount}" Width="80"/>
+                                        <DataGridTextColumn Header="Активные" Binding="{Binding ActiveOrdersCount}" Width="90"/>
+                                        <DataGridTextColumn Header="Завершено" Binding="{Binding CompletedOrdersCount}" Width="100"/>
+                                        <DataGridTextColumn Header="Выручка" Binding="{Binding TotalRevenue, StringFormat='{}{0:N0}'}" Width="120"/>
+                                        <DataGridTextColumn Header="Средний чек" Binding="{Binding AverageOrderValue, StringFormat='{}{0:N0}'}" Width="120"/>
+                                        <DataGridTextColumn Header="Часы" Binding="{Binding TotalHours, StringFormat='{}{0:N1}'}" Width="90"/>
+                                        <DataGridTextColumn Header="Ставка" Binding="{Binding AverageRate, StringFormat='{}{0:N1}'}" Width="90"/>
+                                        <DataGridTextColumn Header="Рентабельность" Binding="{Binding Profitability, Converter={x:Static converters:EnumDescriptionConverter.Instance}}" Width="130"/>
+                                        <DataGridTextColumn Header="Отношения" Binding="{Binding Relationship}" Width="120"/>
+                                        <DataGridTextColumn Header="Платежеспособность" Binding="{Binding PaymentAbility}" Width="150"/>
+                                        <DataGridTextColumn Header="Последний заказ" Binding="{Binding LastOrderDate, StringFormat='{}{0:dd.MM.yyyy}'}" Width="130"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </StackPanel>
@@ -438,5 +921,19 @@
         </TabControl>
     </Grid>
 </Window>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

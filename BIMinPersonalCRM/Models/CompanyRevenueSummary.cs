@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace BIMinPersonalCRM.Models
+﻿namespace BIMinPersonalCRM.Models
 {
     /// <summary>
-    /// Represents aggregated revenue statistics for a single company.
+    ///     Сводные показатели выручки по отдельной компании.
     /// </summary>
     public class CompanyRevenueSummary
     {

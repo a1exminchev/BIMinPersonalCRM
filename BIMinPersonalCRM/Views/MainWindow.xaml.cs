@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using BIMinPersonalCRM.Models;
 using BIMinPersonalCRM.ViewModels;
+using BIMinPersonalCRM.ViewModels.Entities;
 
 namespace BIMinPersonalCRM.Views
 {
@@ -19,7 +19,7 @@ namespace BIMinPersonalCRM.Views
                 return;
             }
 
-            if (DataContext is MainViewModel vm && e.Row.Item is Order order)
+            if (DataContext is MainVM vm && e.Row.Item is OrderVM order)
             {
                 vm.EnsureUniqueOrderName(order);
             }
