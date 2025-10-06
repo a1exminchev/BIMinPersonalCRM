@@ -44,6 +44,11 @@
                 <x:Type TypeName="models:OrderExecutionStatus"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+        <ObjectDataProvider x:Key="RelationshipStatuses" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:RelationshipStatus"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
     </Window.Resources>
     
     
@@ -109,6 +114,7 @@
                         <ColumnDefinition Width="400"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
+
                     <StackPanel Grid.Column="0" Margin="5,5,4,5">
                         <materialDesign:Card Padding="5" Margin="0,0,0,5">
                             <StackPanel>
@@ -357,26 +363,62 @@
                                         </DataGridTemplateColumn>
 
                                         <DataGridTextColumn Header="Имя"
-                                                                Binding="{Binding FullName}"
-                                                                Width="200">
+                                                            Binding="{Binding FullName}"
+                                                            Width="Auto"
+                                                            MinWidth="200">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                                 </Style>
                                             </DataGridTextColumn.ElementStyle>
                                         </DataGridTextColumn>
+                                        
                                         <DataGridTextColumn Header="Должность"
-                                                                Binding="{Binding Position}"
-                                                                Width="200">
+                                                            Binding="{Binding Position}"
+                                                            Width="Auto"
+                                                            MinWidth="100">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                                 </Style>
                                             </DataGridTextColumn.ElementStyle>
                                         </DataGridTextColumn>
+                                        
                                         <DataGridTextColumn Header="Телефон"
-                                                                Binding="{Binding Phone}"
-                                                                Width="140">
+                                                            Binding="{Binding Phone}"
+                                                            Width="Auto"
+                                                            MinWidth="100">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTemplateColumn Header="Отношения" Width="150">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock VerticalAlignment="Center"
+                                                               Text="{Binding RelationshipStatus, Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                            <DataGridTemplateColumn.CellEditingTemplate>
+                                                <DataTemplate>
+                                                    <ComboBox SelectedValue="{Binding RelationshipStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                              ItemsSource="{Binding Source={StaticResource RelationshipStatuses}}">
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellEditingTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTextColumn Header="Комментарии"
+                                                            Binding="{Binding Comments}"
+                                                            Width="*">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
@@ -388,13 +430,13 @@
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Button Command="{Binding DataContext.RemoveEmployeeCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                                                BorderBrush="{StaticResource ErrorBrush}"
-                                                                Foreground="{StaticResource ErrorBrush}"
-                                                                Padding="0"
-                                                                Width="28"
-                                                                Height="28">
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                            BorderBrush="{StaticResource ErrorBrush}"
+                                                            Foreground="{StaticResource ErrorBrush}"
+                                                            Padding="0"
+                                                            Width="28"
+                                                            Height="28">
                                                         <materialDesign:PackIcon Kind="Close" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Button>
                                                 </DataTemplate>
@@ -413,21 +455,22 @@
                                 </StackPanel>
 
                                 <DataGrid x:Name="OrdersDataGrid"
-                                              ItemsSource="{Binding SelectedCompany.Orders}"
-                                              d:ItemsSource="{d:SampleData ItemCount=1}"
-                                              SelectedItem="{Binding SelectedOrder}"
-                                              AutoGenerateColumns="False"
-                                              CanUserAddRows="False"
-                                              RowEditEnding="OrdersDataGrid_RowEditEnding"
-                                              Margin="0,0,0,8"
-                                              GridLinesVisibility="Vertical"
-                                              VerticalGridLinesBrush="#22000000"
-                                              HorizontalGridLinesBrush="Transparent"
-                                              CellStyle="{StaticResource CenteredCellStyle}">
+                                            ItemsSource="{Binding SelectedCompany.Orders}"
+                                            d:ItemsSource="{d:SampleData ItemCount=1}"
+                                            SelectedItem="{Binding SelectedOrder}"
+                                            AutoGenerateColumns="False"
+                                            CanUserAddRows="False"
+                                            RowEditEnding="OrdersDataGrid_RowEditEnding"
+                                            Margin="0,0,0,8"
+                                            GridLinesVisibility="Vertical"
+                                            VerticalGridLinesBrush="#22000000"
+                                            HorizontalGridLinesBrush="Transparent"
+                                            CellStyle="{StaticResource CenteredCellStyle}">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Название"
-                                                                Binding="{Binding Name}"
-                                                                Width="200">
+                                                            Binding="{Binding Name}"
+                                                            Width="Auto"
+                                                            MinWidth="150">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
@@ -436,8 +479,9 @@
                                         </DataGridTextColumn>
 
                                         <DataGridTextColumn Header="Стоимость"
-                                                                Binding="{Binding Price, StringFormat='{}{0:N2}'}"
-                                                                Width="120">
+                                                            Binding="{Binding Price, StringFormat='{}{0:N2}'}"
+                                                            Width="Auto"
+                                                            MinWidth="100">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
@@ -446,18 +490,18 @@
                                             </DataGridTextColumn.ElementStyle>
                                         </DataGridTextColumn>
 
-                                        <DataGridTemplateColumn Header="Статус выполнения" Width="170">
+                                        <DataGridTemplateColumn Header="Статус выполнения"
+                                                                Width="160">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock VerticalAlignment="Center"
-                                                                   Text="{Binding ExecutionStatus, Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
+                                                               Text="{Binding ExecutionStatus, Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                             <DataGridTemplateColumn.CellEditingTemplate>
                                                 <DataTemplate>
                                                     <ComboBox SelectedValue="{Binding ExecutionStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                  ItemsSource="{Binding Source={StaticResource OrderExecutionStatuses}}"
-                                                                  Height="200">
+                                                              ItemsSource="{Binding Source={StaticResource OrderExecutionStatuses}}">
                                                         <ComboBox.ItemTemplate>
                                                             <DataTemplate>
                                                                 <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}"/>
@@ -469,8 +513,9 @@
                                         </DataGridTemplateColumn>
 
                                         <DataGridTextColumn Header="Создан"
-                                                                Binding="{Binding CreatedDate, StringFormat='{}{0:dd.MM.yyyy}'}"
-                                                                Width="120">
+                                                            Binding="{Binding CreatedDate, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                                            Width="Auto"
+                                                            MinWidth="100">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
@@ -478,17 +523,17 @@
                                             </DataGridTextColumn.ElementStyle>
                                         </DataGridTextColumn>
 
-                                        <DataGridTemplateColumn Width="65" Header="" CanUserResize="False">
+                                        <DataGridTemplateColumn Width="65" Header="" CanUserResize="False" CanUserSort="False">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Button Command="{Binding DataContext.RemoveOrderCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                                                BorderBrush="{StaticResource ErrorBrush}"
-                                                                Foreground="{StaticResource ErrorBrush}"
-                                                                Height="28"
-                                                                Width="28"
-                                                                Padding="0">
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                            BorderBrush="{StaticResource ErrorBrush}"
+                                                            Foreground="{StaticResource ErrorBrush}"
+                                                            Height="28"
+                                                            Width="28"
+                                                            Padding="0">
                                                         <materialDesign:PackIcon Kind="Close" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Button>
                                                 </DataTemplate>
@@ -501,19 +546,20 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                     <TextBlock Text="Приложенные файлы" FontSize="16" FontWeight="Medium" VerticalAlignment="Center"/>
                                     <Button Content="Добавить"
-                                                Command="{Binding AddFileCommand}"
-                                                Style="{StaticResource MaterialDesignRaisedButton}"
-                                                Margin="16,0,8,0"/>
+                                            Command="{Binding AddFileCommand}"
+                                            Style="{StaticResource MaterialDesignRaisedButton}"
+                                            Margin="16,0,8,0"/>
                                 </StackPanel>
+                                
                                 <DataGrid ItemsSource="{Binding SelectedOrder.AttachedFiles}"
-                                              d:ItemsSource="{d:SampleData ItemCount=1}"
-                                              SelectedItem="{Binding SelectedFile}"
-                                              AutoGenerateColumns="False"
-                                              CanUserAddRows="False"
-                                              GridLinesVisibility="Vertical"
-                                              VerticalGridLinesBrush="#22000000"
-                                              HorizontalGridLinesBrush="Transparent"
-                                              CellStyle="{StaticResource CenteredCellStyle}">
+                                        d:ItemsSource="{d:SampleData ItemCount=1}"
+                                        SelectedItem="{Binding SelectedFile}"
+                                        AutoGenerateColumns="False"
+                                        CanUserAddRows="False"
+                                        GridLinesVisibility="Vertical"
+                                        VerticalGridLinesBrush="#22000000"
+                                        HorizontalGridLinesBrush="Transparent"
+                                        CellStyle="{StaticResource CenteredCellStyle}">
                                     <DataGrid.RowStyle>
                                         <Style TargetType="DataGridRow">
                                             <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
@@ -528,8 +574,9 @@
                                     </DataGrid.RowStyle>
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Имя"
-                                                                Binding="{Binding Name}"
-                                                                Width="200">
+                                                            Binding="{Binding Name}"
+                                                            Width="Auto"
+                                                            MinWidth="100">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
@@ -538,8 +585,31 @@
                                         </DataGridTextColumn>
 
                                         <DataGridTextColumn Header="Тип"
-                                                                Binding="{Binding FileType, Converter={x:Static converters:EnumDescriptionConverter.Instance}}"
-                                                                Width="120">
+                                                            Binding="{Binding FileType, Converter={x:Static converters:EnumDescriptionConverter.Instance}}"
+                                                            Width="Auto"
+                                                            MinWidth="100">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTextColumn Header="Размер, мб"
+                                                            Binding="{Binding FileSize}"
+                                                            Width="Auto"
+                                                            MinWidth="100">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTextColumn Header="Добавлен"
+                                                            Binding="{Binding DateAdded}"
+                                                            Width="Auto"
+                                                            MinWidth="100">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
@@ -548,8 +618,8 @@
                                         </DataGridTextColumn>
 
                                         <DataGridTextColumn Header="Путь"
-                                                                Binding="{Binding FilePath}"
-                                                                Width="*">
+                                                            Binding="{Binding FilePath}"
+                                                            Width="*">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
@@ -557,47 +627,57 @@
                                             </DataGridTextColumn.ElementStyle>
                                         </DataGridTextColumn>
 
-                                        <DataGridTemplateColumn Header="" Width="150" CanUserResize="False">
+                                        <DataGridTextColumn Header="Комментарий"
+                                                            Binding="{Binding Comment}"
+                                                            Width="*">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTemplateColumn Header="" Width="150" CanUserResize="False" CanUserSort="False">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Button Content="Указать путь"
-                                                                Command="{Binding DataContext.RepathFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                                                Visibility="{Binding FilePath, Converter={x:Static converters:PathExistsConverter.Instance}, ConverterParameter=Inverse}"
-                                                                Padding="0"
-                                                                Height="28"
-                                                                Width="110"/>
+                                                            Command="{Binding DataContext.RepathFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                            Visibility="{Binding FilePath, Converter={x:Static converters:PathExistsConverter.Instance}, ConverterParameter=Inverse}"
+                                                            Padding="0"
+                                                            Height="28"
+                                                            Width="110"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
 
-                                        <DataGridTemplateColumn Header="" Width="120" CanUserResize="False">
+                                        <DataGridTemplateColumn Header="" Width="120" CanUserResize="False" CanUserSort="False">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Button Content="Открыть"
-                                                                Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                                                IsEnabled="{Binding FilePath, Converter={x:Static converters:PathExistsConverter.Instance}}"
-                                                                Padding="0"
-                                                                Height="28"
-                                                                Width="80"/>
+                                                            Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                            IsEnabled="{Binding FilePath, Converter={x:Static converters:PathExistsConverter.Instance}}"
+                                                            Padding="0"
+                                                            Height="28"
+                                                            Width="80"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
 
-                                        <DataGridTemplateColumn Width="65" Header="" CanUserResize="False">
+                                        <DataGridTemplateColumn Width="65" Header="" CanUserResize="False" CanUserSort="False">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Button Command="{Binding DataContext.RemoveFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                                                BorderBrush="{StaticResource ErrorBrush}"
-                                                                Foreground="{StaticResource ErrorBrush}"
-                                                                Height="28"
-                                                                Width="28"
-                                                                Padding="0">
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                            BorderBrush="{StaticResource ErrorBrush}"
+                                                            Foreground="{StaticResource ErrorBrush}"
+                                                            Height="28"
+                                                            Width="28"
+                                                            Padding="0">
                                                         <materialDesign:PackIcon Kind="Close" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Button>
                                                 </DataTemplate>
