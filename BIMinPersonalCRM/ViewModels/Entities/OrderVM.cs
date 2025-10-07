@@ -15,6 +15,7 @@ namespace BIMinPersonalCRM.ViewModels.Entities
         public OrderVM()
         {
             _dto = new();
+
             AttachedFiles = new();
             Tasks = new();
             Price = 0;

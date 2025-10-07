@@ -14,6 +14,8 @@
         public Models.TaskStatus Status { get; set; } = Models.TaskStatus.Waiting;
         public DateTime? TimerStartTime { get; set; }
         public bool IsTimerRunning { get; set; } = false;
+        public string CompanyName { get; set; } = string.Empty;
+        public string OrderName { get; set; } = string.Empty;
     }
 }
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using BIMinPersonalCRM.Models;
-
-namespace BIMinPersonalCRM.DataObjects
+﻿namespace BIMinPersonalCRM.DataObjects
 {
     /// <summary>
     ///     DTO с данными приложения для сохранения в JSON.

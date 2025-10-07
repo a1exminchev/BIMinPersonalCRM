@@ -14,6 +14,7 @@ namespace BIMinPersonalCRM.ViewModels.Entities
         public FileAttachmentVM()
         {
             _dto = new();
+
             DateAdded = DateTime.Now;
         }
 

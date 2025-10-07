@@ -12,6 +12,8 @@ namespace BIMinPersonalCRM.ViewModels.Entities
 
         public TaskVM()
         {
+            _dto = new();
+
             HoursSpent = 0;
             StartDate = DateTime.Now;
             Status = Models.TaskStatus.Waiting;
@@ -29,6 +31,8 @@ namespace BIMinPersonalCRM.ViewModels.Entities
             Status = _dto.Status;
             TimerStartTime = _dto.TimerStartTime;
             IsTimerRunning = _dto.IsTimerRunning;
+            CompanyName = _dto.CompanyName;
+            OrderName = _dto.OrderName;
         }
 
         public int Id
@@ -77,6 +81,18 @@ namespace BIMinPersonalCRM.ViewModels.Entities
         {
             get => GetValue<bool>(nameof(IsTimerRunning));
             set => SetValue(nameof(IsTimerRunning), value);
+        }
+
+        public string OrderName
+        {
+            get => GetValue<string>(nameof(OrderName));
+            set => SetValue(nameof(OrderName), value);
+        }
+
+        public string CompanyName
+        {
+            get => GetValue<string>(nameof(CompanyName));
+            set => SetValue(nameof(CompanyName), value);
         }
 
         public TaskDTO ToDto()

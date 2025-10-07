@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using BIMinPersonalCRM.Commands;
 using BIMinPersonalCRM.DataObjects;
@@ -30,7 +33,7 @@ namespace BIMinPersonalCRM.ViewModels
         private DateTime? _timerStartTime;
         #endregion
 
-        #region Вычисляемые свойства
+        #region Вычисляемые публичные свойства
 
         /// <summary>
         ///     Общие затраченные часы по всем задачам всех заказов.
@@ -153,7 +156,11 @@ namespace BIMinPersonalCRM.ViewModels
         /// <summary>
         /// Статус таймера
         /// </summary>
-        public string TimerStatus => IsTimerRunning ? "Запущен" : "Остановлен";
+        public string TimerStatus
+        {
+            get => GetValue<string>(nameof(TimerStatus));
+            set => SetValue(nameof(TimerStatus), value);
+        }
 
         /// <summary>
         /// Часы за сегодня
@@ -362,6 +369,19 @@ namespace BIMinPersonalCRM.ViewModels
         }
 
         /// <summary>
+        /// Текст поиска задач
+        /// </summary>
+        public string TaskSearchText
+        {
+            get => GetValue<string>(nameof(TaskSearchText));
+            set
+            {
+                SetValue(nameof(TaskSearchText), value);
+                OnPropertyChanged(nameof(FilteredTasks));
+            }
+        }
+
+        /// <summary>
         /// Фильтрованные компании
         /// </summary>
         public ObservableCollection<CompanyVM> FilteredCompanies
@@ -403,7 +423,9 @@ namespace BIMinPersonalCRM.ViewModels
                 if (!string.IsNullOrWhiteSpace(OrderSearchText))
                 {
                     allOrders = allOrders.Where(o => o.Name.Contains(OrderSearchText, StringComparison.OrdinalIgnoreCase) ||
-                                                     o.SoftwareType.Contains(OrderSearchText, StringComparison.OrdinalIgnoreCase));
+                                                     o.SoftwareType.Contains(OrderSearchText, StringComparison.OrdinalIgnoreCase) ||
+                                                     o.Comments.Contains(OrderSearchText, StringComparison.OrdinalIgnoreCase) ||
+                                                     o.CompanyName.Contains(OrderSearchText, StringComparison.OrdinalIgnoreCase));
                 }
 
                 if (SelectedCompanyFilter != null)
@@ -417,6 +439,37 @@ namespace BIMinPersonalCRM.ViewModels
                 }
 
                 return new(allOrders.OrderByDescending(o => o.CreatedDate));
+            }
+        }
+
+        /// <summary>
+        /// Фильтрованные задачи
+        /// </summary>
+        public ObservableCollection<TaskVM> FilteredTasks
+        {
+            get
+            {
+                var allTasks = Companies.SelectMany(c => c.Orders).SelectMany(o => o.Tasks);
+
+                if (!string.IsNullOrWhiteSpace(TaskSearchText))
+                {
+                    allTasks = allTasks.Where(t => t.Name.Contains(TaskSearchText, StringComparison.OrdinalIgnoreCase) ||
+                                                   t.CompanyName.Contains(TaskSearchText, StringComparison.OrdinalIgnoreCase) ||
+                                                   t.Description.Contains(TaskSearchText, StringComparison.OrdinalIgnoreCase) ||
+                                                   t.OrderName.Contains(TaskSearchText, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (SelectedCompanyFilterForTasks != null)
+                {
+                    allTasks = allTasks.Where(o => o.CompanyName == SelectedCompanyFilterForTasks.Name);
+                }
+
+                if (SelectedTaskStatusFilter.HasValue)
+                {
+                    allTasks = allTasks.Where(t => t.Status == SelectedTaskStatusFilter.Value);
+                }
+
+                return new(allTasks.OrderByDescending(o => o.StartDate));
             }
         }
 
@@ -472,6 +525,19 @@ namespace BIMinPersonalCRM.ViewModels
         }
 
         /// <summary>
+        /// Фильтры для статусов задач
+        /// </summary>
+        public List<Models.TaskStatus?> TaskStatusFilter
+        {
+            get
+            {
+                var list = new List<Models.TaskStatus?> { null };
+                list.AddRange(Enum.GetValues<Models.TaskStatus>().Cast<Models.TaskStatus?>());
+                return list;
+            }
+        }
+
+        /// <summary>
         /// Выбранный фильтр отношений
         /// </summary>
         public RelationshipStatus? SelectedRelationshipFilter
@@ -511,6 +577,19 @@ namespace BIMinPersonalCRM.ViewModels
         }
 
         /// <summary>
+        /// Выбранный фильтр компании для задач
+        /// </summary>
+        public CompanyVM? SelectedCompanyFilterForTasks
+        {
+            get => GetValue<CompanyVM?>(nameof(SelectedCompanyFilterForTasks));
+            set
+            {
+                SetValue(nameof(SelectedCompanyFilterForTasks), value);
+                OnPropertyChanged(nameof(FilteredTasks));
+            }
+        }
+
+        /// <summary>
         /// Выбранный фильтр статуса заказа
         /// </summary>
         public OrderExecutionStatus? SelectedOrderStatusFilter
@@ -523,11 +602,32 @@ namespace BIMinPersonalCRM.ViewModels
             }
         }
 
+        /// <summary>
+        /// Выбранный фильтр статуса задачи
+        /// </summary>
+        public Models.TaskStatus? SelectedTaskStatusFilter
+        {
+            get => GetValue<Models.TaskStatus?>(nameof(SelectedTaskStatusFilter));
+            set
+            {
+                SetValue(nameof(SelectedTaskStatusFilter), value);
+                OnPropertyChanged(nameof(FilteredTasks));
+            }
+        }
         #endregion
 
         #endregion
 
-        #region Коллекции и выбранные элементы
+        #region Публичные свойства
+
+        /// <summary>
+        ///     Текущий выбранный индекс вкладки.
+        /// </summary>
+        public int SelectedTabIndex
+        {
+            get => GetValue<int>(nameof(SelectedTabIndex));
+            set => SetValue(nameof(SelectedTabIndex), value);
+        }
 
         /// <summary>
         ///     Компании, отображаемые в UI.
@@ -596,7 +696,7 @@ namespace BIMinPersonalCRM.ViewModels
         }
 
         /// <summary>
-        ///     Текущая выбранная задача.
+        ///     Выбранная задача.
         /// </summary>
         public TaskVM SelectedTask
         {
@@ -607,7 +707,16 @@ namespace BIMinPersonalCRM.ViewModels
         /// <summary>
         ///     Возвращает признак, что таймер запущен.
         /// </summary>
-        public bool IsTimerRunning => _timer.Enabled && SelectedTask?.IsTimerRunning == true;
+        //public bool IsTimerRunning => _timer.Enabled && SelectedTask?.IsTimerRunning == true;
+        public bool IsTimerRunning
+        {
+            get => GetValue<bool>(nameof(IsTimerRunning));
+            set
+            {
+                SetValue(nameof(IsTimerRunning), value);
+                TimerStatus = value ? "Запущен" : "Остановлен";
+            }
+        }
 
         /// <summary>
         /// Выбранный сотрудник
@@ -627,6 +736,23 @@ namespace BIMinPersonalCRM.ViewModels
             set => SetValue(nameof(SelectedFile), value);
         }
 
+        /// <summary>
+        ///     Текущая задача.
+        /// </summary>
+        public TaskVM CurrentTask
+        {
+            get => GetValue<TaskVM>(nameof(CurrentTask));
+            set
+            {
+                SetValue(nameof(CurrentTask), value);
+                OnPropertyChanged(nameof(CurrentTaskCollection));
+            }
+        }
+
+        /// <summary>
+        ///     Текущие задачи из одной задачи для DataGrid ItemsSource.
+        /// </summary> 
+        public ObservableCollection<TaskVM> CurrentTaskCollection => CurrentTask == null ? new() : new () { CurrentTask };
         #endregion
 
         #region Команды
@@ -635,6 +761,7 @@ namespace BIMinPersonalCRM.ViewModels
         public DelegateCommand AddOrderCommand { get; }
         public DelegateCommand<OrderVM> RemoveOrderCommand { get; }
         public DelegateCommand AddTaskCommand { get; }
+        public DelegateCommand<TaskVM> RemoveTaskCommand { get; }
         public DelegateCommand AddEmployeeCommand { get; }
         public DelegateCommand<EmployeeVM> RemoveEmployeeCommand { get; }
         public DelegateCommand AddFileCommand { get; }
@@ -645,8 +772,11 @@ namespace BIMinPersonalCRM.ViewModels
         public DelegateCommand SaveCommand { get; }
         public DelegateCommand LoadCommand { get; }
         public DelegateCommand<OrderVM> ShowOrderFilesCommand { get; }
+        public DelegateCommand<TaskVM> ShowTaskOriginCommand { get; }
         public DelegateCommand StartTimerCommand { get; }
         public DelegateCommand StopTimerCommand { get; }
+        public DelegateCommand<TaskVM> SetCurrentTaskCommand { get; }
+        public DelegateCommand RemoveCurrentTaskCommand { get; }
         public DelegateCommand DeleteCompanyCommand { get; }
         public DelegateCommand SelectLogoCommand { get; }
         public DelegateCommand RemoveLogoCommand { get; }
@@ -712,7 +842,10 @@ namespace BIMinPersonalCRM.ViewModels
             AddCompanyCommand = new(AddCompany);
             AddOrderCommand = new(AddOrder, _ => SelectedCompany != null);
             RemoveOrderCommand = new(RemoveOrder, parameter => SelectedCompany != null && parameter is OrderVM);
+            ShowOrderFilesCommand = new(ShowOrderFiles, parameter => parameter is OrderVM);
+            ShowTaskOriginCommand = new(ShowTaskOrigin, parameter => parameter is TaskVM);
             AddTaskCommand = new(AddTask, _ => SelectedOrder != null);
+            RemoveTaskCommand = new(RemoveTask, parameter => SelectedOrder != null && parameter is TaskVM);
             AddEmployeeCommand = new(AddEmployee, _ => SelectedCompany != null);
             RemoveEmployeeCommand = new(RemoveEmployee, parameter => SelectedCompany != null && parameter is EmployeeVM);
             AddFileCommand = new(AddFile, _ => SelectedOrder != null);
@@ -727,8 +860,10 @@ namespace BIMinPersonalCRM.ViewModels
             ToggleThemeCommand = new(ToggleTheme);
             SaveCommand = new(async () => await SaveAsync());
             LoadCommand = new(async () => await LoadAsync());
-            StartTimerCommand = new(StartTimer, _ => SelectedTask != null && !IsTimerRunning);
-            StopTimerCommand = new(StopTimer, _ => SelectedTask != null && IsTimerRunning);
+            StartTimerCommand = new(StartTimer, _ => CurrentTask != null && !IsTimerRunning);
+            StopTimerCommand = new(StopTimer, _ => CurrentTask != null && IsTimerRunning);
+            SetCurrentTaskCommand = new(SetCurrentTask);
+            RemoveCurrentTaskCommand = new(RemoveCurrentTask);
         }
 
         #region Имплементация команд
@@ -800,21 +935,80 @@ namespace BIMinPersonalCRM.ViewModels
             UpdateAllStatistics();
         }
 
+        private void ShowOrderFiles(OrderVM order)
+        {
+            if (order == null) return;
+
+            var company = Companies.FirstOrDefault(c => c.Orders.Contains(order) || c.Orders.Any(o => o.Id == order.Id));
+            if (company == null) return;
+
+            var targetOrder = company.Orders.FirstOrDefault(o => ReferenceEquals(o, order) || o.Id == order.Id);
+            if (targetOrder == null) return;
+
+            if (!ReferenceEquals(SelectedCompany, company))
+            {
+                SelectedCompany = company;
+            }
+
+            SelectedOrder = targetOrder;
+            SelectedTabIndex = 0;
+        }
+
+        private void ShowTaskOrigin(TaskVM task)
+        {
+            if (task == null) return;
+
+            var targetCompany = Companies.FirstOrDefault(c => c.Orders.FirstOrDefault(x => x.Tasks.FirstOrDefault(t => t.Id == task.Id) != null) != null);
+            if (targetCompany == null) return;
+
+            var targetOrder = targetCompany.Orders.FirstOrDefault(x => x.Tasks.FirstOrDefault(t => t.Id == task.Id) != null);
+            if (targetOrder == null) return;
+
+            if (!ReferenceEquals(SelectedCompany, targetCompany))
+            {
+                SelectedCompany = targetCompany;
+            }
+
+            SelectedOrder = targetOrder;
+            SelectedTask = task;
+            SelectedTabIndex = 0;
+        }
+
         private void AddTask()
         {
-            if (SelectedOrder == null) return;
             var task = new TaskVM
             {
                 Id = GetNextTaskId(),
                 Name = "Новая задача",
-                StartDate = DateTime.Today
+                StartDate = DateTime.Today,
+                CompanyName = SelectedCompany.Name,
+                OrderName = SelectedOrder.Name
             };
             SelectedOrder.Tasks.Add(task);
-            OnPropertyChanged(nameof(Tasks));
+            AllTasks.Add(task);
             SelectedTask = task;
-            OnPropertyChanged(nameof(TotalHoursSpent));
-            OnPropertyChanged(nameof(AverageHourlyRate));
-            UpdateAllStatistics();
+            //OnPropertyChanged(nameof(TotalHoursSpent));
+            //OnPropertyChanged(nameof(AverageHourlyRate));
+            //UpdateAllStatistics();
+        }
+
+        private void RemoveTask(TaskVM task)
+        {
+            if (SelectedTask == null || task == null) return;
+
+            var result = System.Windows.MessageBox.Show(
+                $"Вы действительно хотите удалить задачу '{task.Name}'?",
+                "Подтверждение удаления",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Warning);
+
+            if (result == System.Windows.MessageBoxResult.Yes)
+            {
+                if (SelectedOrder.Tasks.Remove(task) && ReferenceEquals(SelectedTask, task))
+                {
+                    SelectedTask = null;
+                }
+            }
         }
 
         private void AddEmployee()
@@ -848,7 +1042,7 @@ namespace BIMinPersonalCRM.ViewModels
             if (SelectedCompany == null || employee == null) return;
 
             var result = System.Windows.MessageBox.Show(
-                $"Вы действительно хотите удалить сотрудника '{SelectedEmployee.FullName}'?",
+                $"Вы действительно хотите удалить сотрудника '{employee.FullName}'?",
                 "Подтверждение удаления",
                 System.Windows.MessageBoxButton.YesNo,
                 System.Windows.MessageBoxImage.Warning);
@@ -1073,7 +1267,7 @@ namespace BIMinPersonalCRM.ViewModels
                         {
                             SelectedCompany = company;
                             SelectedOrder = order;
-                            SelectedTask = task;
+                            CurrentTask = task;
 
                             // Восстановить состояние таймера, если он был запущен
                             if (task.IsTimerRunning && task.TimerStartTime.HasValue)
@@ -1084,7 +1278,7 @@ namespace BIMinPersonalCRM.ViewModels
                             break;
                         }
                     }
-                    if (SelectedTask != null) break;
+                    if (CurrentTask != null) break;
                 }
             }
             OnPropertyChanged(nameof(TotalHoursSpent));
@@ -1098,7 +1292,7 @@ namespace BIMinPersonalCRM.ViewModels
 
         private void StartTimer()
         {
-            if (SelectedTask == null)
+            if (CurrentTask == null)
                 return;
 
             // Остановить таймер для всех других задач
@@ -1108,7 +1302,7 @@ namespace BIMinPersonalCRM.ViewModels
                 {
                     foreach (var task in order.Tasks)
                     {
-                        if (task != SelectedTask && task.IsTimerRunning)
+                        if (task != CurrentTask && task.IsTimerRunning)
                         {
                             task.IsTimerRunning = false;
                             task.TimerStartTime = null;
@@ -1118,22 +1312,23 @@ namespace BIMinPersonalCRM.ViewModels
             }
 
             _timerStartTime = DateTime.Now;
-            SelectedTask.TimerStartTime = _timerStartTime;
-            SelectedTask.IsTimerRunning = true;
+            CurrentTask.TimerStartTime = _timerStartTime;
+            CurrentTask.IsTimerRunning = true;
             _timer.Start();
-            OnPropertyChanged(nameof(IsTimerRunning));
+            //OnPropertyChanged(nameof(IsTimerRunning));
+            IsTimerRunning = true;
         }
 
         private void StopTimer()
         {
-            if (SelectedTask == null || !_timerStartTime.HasValue)
+            if (CurrentTask == null || !_timerStartTime.HasValue)
                 return;
             _timer.Stop();
             var elapsed = DateTime.Now - _timerStartTime.Value;
             // Конвертировать в часы с точностью до двух знаков.
-            SelectedTask.HoursSpent += Math.Round(elapsed.TotalHours, 2);
-            SelectedTask.IsTimerRunning = false;
-            SelectedTask.TimerStartTime = null;
+            CurrentTask.HoursSpent += Math.Round(elapsed.TotalHours, 2);
+            CurrentTask.IsTimerRunning = false;
+            CurrentTask.TimerStartTime = null;
             _timerStartTime = null;
             OnPropertyChanged(nameof(Tasks));
             OnPropertyChanged(nameof(TotalHoursSpent));
@@ -1143,8 +1338,19 @@ namespace BIMinPersonalCRM.ViewModels
             OnPropertyChanged(nameof(SelectedOrder));
             OnPropertyChanged(nameof(Companies));
             OnPropertyChanged(nameof(TotalMoneyEarned));
-            OnPropertyChanged(nameof(IsTimerRunning));
+            //OnPropertyChanged(nameof(IsTimerRunning));
+            IsTimerRunning = false;
             UpdateAllStatistics();
+        }
+
+        private void SetCurrentTask(TaskVM newCurrentTask)
+        {
+            CurrentTask = newCurrentTask;
+        }
+
+        private void RemoveCurrentTask()
+        {
+            CurrentTask = null;
         }
         #endregion
 

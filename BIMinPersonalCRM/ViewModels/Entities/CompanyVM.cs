@@ -15,6 +15,7 @@ namespace BIMinPersonalCRM.ViewModels.Entities
         public CompanyVM()
         {
             _dto = new();
+
             Employees = new();
             Orders = new();
             RelationshipStatus = RelationshipStatus.NotKnown;
