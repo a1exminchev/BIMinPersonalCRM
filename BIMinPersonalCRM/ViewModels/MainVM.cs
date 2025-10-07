@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -29,6 +30,7 @@ namespace BIMinPersonalCRM.ViewModels
     {
         #region private fields
         private readonly IDataService _dataService;
+        private readonly IStatisticsService _statisticsService;
         private readonly System.Timers.Timer _timer;
         private DateTime? _timerStartTime;
         #endregion
@@ -225,25 +227,65 @@ namespace BIMinPersonalCRM.ViewModels
 
         public ObservableCollection<ISeries> RevenueTrendSeries
         {
-            get => GetValue<ObservableCollection<ISeries>>(nameof(RevenueTrendSeries)) ?? new();
+            get
+            {
+                var value = GetValue<ObservableCollection<ISeries>>(nameof(RevenueTrendSeries));
+                if (value == null)
+                {
+                    value = new ObservableCollection<ISeries>();
+                    SetValue(nameof(RevenueTrendSeries), value);
+                }
+
+                return value;
+            }
             set => SetValue(nameof(RevenueTrendSeries), value);
         }
 
         public ObservableCollection<ISeries> OrdersByStatusSeries
         {
-            get => GetValue<ObservableCollection<ISeries>>(nameof(OrdersByStatusSeries)) ?? new();
+            get
+            {
+                var value = GetValue<ObservableCollection<ISeries>>(nameof(OrdersByStatusSeries));
+                if (value == null)
+                {
+                    value = new ObservableCollection<ISeries>();
+                    SetValue(nameof(OrdersByStatusSeries), value);
+                }
+
+                return value;
+            }
             set => SetValue(nameof(OrdersByStatusSeries), value);
         }
 
         public ObservableCollection<ISeries> TasksStatusSeries
         {
-            get => GetValue<ObservableCollection<ISeries>>(nameof(TasksStatusSeries)) ?? new();
+            get
+            {
+                var value = GetValue<ObservableCollection<ISeries>>(nameof(TasksStatusSeries));
+                if (value == null)
+                {
+                    value = new ObservableCollection<ISeries>();
+                    SetValue(nameof(TasksStatusSeries), value);
+                }
+
+                return value;
+            }
             set => SetValue(nameof(TasksStatusSeries), value);
         }
 
         public ObservableCollection<ISeries> RevenueByCompanySeries
         {
-            get => GetValue<ObservableCollection<ISeries>>(nameof(RevenueByCompanySeries)) ?? new();
+            get
+            {
+                var value = GetValue<ObservableCollection<ISeries>>(nameof(RevenueByCompanySeries));
+                if (value == null)
+                {
+                    value = new ObservableCollection<ISeries>();
+                    SetValue(nameof(RevenueByCompanySeries), value);
+                }
+
+                return value;
+            }
             set => SetValue(nameof(RevenueByCompanySeries), value);
         }
 
@@ -332,7 +374,17 @@ namespace BIMinPersonalCRM.ViewModels
 
         public ObservableCollection<CompanyRevenueSummary> CompanyRevenueSummaries
         {
-            get => GetValue<ObservableCollection<CompanyRevenueSummary>>(nameof(CompanyRevenueSummaries)) ?? new();
+            get
+            {
+                var value = GetValue<ObservableCollection<CompanyRevenueSummary>>(nameof(CompanyRevenueSummaries));
+                if (value == null)
+                {
+                    value = new ObservableCollection<CompanyRevenueSummary>();
+                    SetValue(nameof(CompanyRevenueSummaries), value);
+                }
+
+                return value;
+            }
             set => SetValue(nameof(CompanyRevenueSummaries), value);
         }
 
@@ -708,18 +760,63 @@ namespace BIMinPersonalCRM.ViewModels
         ///     Возвращает признак, что таймер запущен.
         /// </summary>
         //public bool IsTimerRunning => _timer.Enabled && SelectedTask?.IsTimerRunning == true;
+
         public bool IsTimerRunning
         {
             get => GetValue<bool>(nameof(IsTimerRunning));
             set
             {
                 SetValue(nameof(IsTimerRunning), value);
-                TimerStatus = value ? "Запущен" : "Остановлен";
+                if (!value)
+                {
+                    TimerStatus = "Остановлен";
+                    CurrentTimerElapsed = TimeSpan.Zero;
+                    OnPropertyChanged(nameof(CurrentTaskRunningHours));
+                    OnPropertyChanged(nameof(CurrentTaskRunningTimeDisplay));
+                }
+                UpdateTimerCommands();
+            }
+        }
+
+        public TimeSpan CurrentTimerElapsed
+        {
+            get => GetValue<TimeSpan>(nameof(CurrentTimerElapsed));
+            private set => SetValue(nameof(CurrentTimerElapsed), value);
+        }
+
+        public double CurrentTaskRunningHours
+        {
+            get
+            {
+                if (CurrentTask == null)
+                {
+                    return 0;
+                }
+
+                var hours = CurrentTask.HoursSpent;
+                if (IsTimerRunning && _timerStartTime.HasValue)
+                {
+                    hours += (DateTime.Now - _timerStartTime.Value).TotalHours;
+                }
+
+                return hours;
             }
         }
 
         /// <summary>
-        /// Выбранный сотрудник
+        ///     Форматированное отображение времени работы над текущей задачей.
+        /// </summary>
+        public string CurrentTaskRunningTimeDisplay
+        {
+            get
+            {
+                var time = TimeSpan.FromHours(CurrentTaskRunningHours);
+                return $"{(int)time.TotalHours}ч {time.Minutes:D2}мин";
+            }
+        }
+
+        /// <summary>
+        /// ????????? ?????????
         /// </summary>
         public EmployeeVM SelectedEmployee
         {
@@ -739,13 +836,20 @@ namespace BIMinPersonalCRM.ViewModels
         /// <summary>
         ///     Текущая задача.
         /// </summary>
+
         public TaskVM CurrentTask
         {
             get => GetValue<TaskVM>(nameof(CurrentTask));
             set
             {
+                if (ReferenceEquals(CurrentTask, value))
+                {
+                    return;
+                }
+
                 SetValue(nameof(CurrentTask), value);
                 OnPropertyChanged(nameof(CurrentTaskCollection));
+                SyncTimerStateFromCurrentTask();
             }
         }
 
@@ -782,6 +886,7 @@ namespace BIMinPersonalCRM.ViewModels
         public DelegateCommand RemoveLogoCommand { get; }
         public DelegateCommand<EmployeeVM> SelectEmployeeAvatarCommand { get; }
         public DelegateCommand<EmployeeVM> RemoveEmployeeAvatarCommand { get; }
+        public DelegateCommand RefreshStatisticsCommand { get; }
 
         #endregion
 
@@ -791,6 +896,7 @@ namespace BIMinPersonalCRM.ViewModels
         public MainVM()
         {
             _dataService = new JsonDataService(AppSettings.DataFile);
+            _statisticsService = new StatisticsService();
             if (!System.IO.Directory.Exists(AppSettings.CompanyLogosFolder))
             {
                 System.IO.Directory.CreateDirectory(AppSettings.CompanyLogosFolder);
@@ -801,7 +907,15 @@ namespace BIMinPersonalCRM.ViewModels
             }
 
             Companies = new();
-            SelectedOrderStatusFilter = OrderExecutionStatus.InProgress;
+            TimerStatus = "Остановлен";
+            CurrentTimerElapsed = TimeSpan.Zero;
+
+            if (Application.Current != null)
+            {
+                Application.Current.Exit += OnApplicationExit;
+            }
+
+            SelectedOrderStatusFilter = null;
 
             IsLightTheme = ThemeManager.IsLightTheme;
             ThemeManager.ThemeChanged += ThemeManagerOnThemeChanged;
@@ -864,6 +978,9 @@ namespace BIMinPersonalCRM.ViewModels
             StopTimerCommand = new(StopTimer, _ => CurrentTask != null && IsTimerRunning);
             SetCurrentTaskCommand = new(SetCurrentTask);
             RemoveCurrentTaskCommand = new(RemoveCurrentTask);
+            RefreshStatisticsCommand = new(RefreshStatistics);
+
+            UpdateTimerCommands();
         }
 
         #region Имплементация команд
@@ -1237,7 +1354,7 @@ namespace BIMinPersonalCRM.ViewModels
             var data = new DataStoreDto
             {
                 Companies = Companies.Select(c => c.ToDto()).ToList(),
-                CurrentTaskId = SelectedTask?.Id
+                CurrentTaskId = CurrentTask?.Id
             };
             await _dataService.SaveAsync(data);
         }
@@ -1256,6 +1373,7 @@ namespace BIMinPersonalCRM.ViewModels
                 }
             }
             // Восстановить выбранную задачу и состояние таймера
+
             if (data.CurrentTaskId.HasValue)
             {
                 foreach (var company in Companies)
@@ -1267,20 +1385,23 @@ namespace BIMinPersonalCRM.ViewModels
                         {
                             SelectedCompany = company;
                             SelectedOrder = order;
+                            SelectedTask = task;
                             CurrentTask = task;
-
-                            // Восстановить состояние таймера, если он был запущен
-                            if (task.IsTimerRunning && task.TimerStartTime.HasValue)
-                            {
-                                _timerStartTime = task.TimerStartTime;
-                                _timer.Start();
-                            }
                             break;
                         }
                     }
-                    if (CurrentTask != null) break;
+
+                    if (CurrentTask != null)
+                    {
+                        break;
+                    }
                 }
             }
+            else
+            {
+                CurrentTask = null;
+            }
+
             OnPropertyChanged(nameof(TotalHoursSpent));
             OnPropertyChanged(nameof(AverageHourlyRate));
             OnPropertyChanged(nameof(TotalMoneyEarned));
@@ -1290,12 +1411,12 @@ namespace BIMinPersonalCRM.ViewModels
             UpdateAllStatistics();
         }
 
+
         private void StartTimer()
         {
             if (CurrentTask == null)
                 return;
 
-            // Остановить таймер для всех других задач
             foreach (var company in Companies)
             {
                 foreach (var order in company.Orders)
@@ -1314,18 +1435,21 @@ namespace BIMinPersonalCRM.ViewModels
             _timerStartTime = DateTime.Now;
             CurrentTask.TimerStartTime = _timerStartTime;
             CurrentTask.IsTimerRunning = true;
+            CurrentTimerElapsed = TimeSpan.Zero;
             _timer.Start();
-            //OnPropertyChanged(nameof(IsTimerRunning));
             IsTimerRunning = true;
+            UpdateRunningTimerVisuals(TimeSpan.Zero);
+            ScheduleSave();
         }
+
 
         private void StopTimer()
         {
             if (CurrentTask == null || !_timerStartTime.HasValue)
                 return;
+
             _timer.Stop();
             var elapsed = DateTime.Now - _timerStartTime.Value;
-            // Конвертировать в часы с точностью до двух знаков.
             CurrentTask.HoursSpent += Math.Round(elapsed.TotalHours, 2);
             CurrentTask.IsTimerRunning = false;
             CurrentTask.TimerStartTime = null;
@@ -1338,31 +1462,134 @@ namespace BIMinPersonalCRM.ViewModels
             OnPropertyChanged(nameof(SelectedOrder));
             OnPropertyChanged(nameof(Companies));
             OnPropertyChanged(nameof(TotalMoneyEarned));
-            //OnPropertyChanged(nameof(IsTimerRunning));
             IsTimerRunning = false;
             UpdateAllStatistics();
+            ScheduleSave();
         }
 
         private void SetCurrentTask(TaskVM newCurrentTask)
         {
+            if (newCurrentTask == null)
+            {
+                return;
+            }
+
+            SelectedTask = newCurrentTask;
             CurrentTask = newCurrentTask;
+            ScheduleSave();
         }
+
 
         private void RemoveCurrentTask()
         {
+            if (IsTimerRunning)
+            {
+                StopTimer();
+            }
+
             CurrentTask = null;
+            ScheduleSave();
+        }
+
+        private void UpdateRunningTimerVisuals(TimeSpan elapsed)
+        {
+            CurrentTimerElapsed = elapsed;
+            TimerStatus = $"Запущен ({FormatElapsed(elapsed)})";
+            OnPropertyChanged(nameof(CurrentTaskRunningHours));
+            OnPropertyChanged(nameof(CurrentTaskRunningTimeDisplay));
+        }
+
+        private void SyncTimerStateFromCurrentTask()
+        {
+            if (CurrentTask?.IsTimerRunning == true && CurrentTask.TimerStartTime.HasValue)
+            {
+                _timerStartTime = CurrentTask.TimerStartTime;
+                IsTimerRunning = true;
+                UpdateRunningTimerVisuals(DateTime.Now - _timerStartTime.Value);
+                _timer.Start();
+            }
+            else
+            {
+                _timer.Stop();
+                _timerStartTime = null;
+                if (IsTimerRunning)
+                {
+                    IsTimerRunning = false;
+                }
+                else
+                {
+                    TimerStatus = "Остановлен";
+                    CurrentTimerElapsed = TimeSpan.Zero;
+                    OnPropertyChanged(nameof(CurrentTaskRunningHours));
+                    OnPropertyChanged(nameof(CurrentTaskRunningTimeDisplay));
+                }
+            }
+
+            UpdateTimerCommands();
+        }
+
+        private void UpdateTimerCommands()
+        {
+            StartTimerCommand?.RaiseCanExecuteChanged();
+            StopTimerCommand?.RaiseCanExecuteChanged();
+        }
+
+        private static string FormatElapsed(TimeSpan elapsed)
+        {
+            return elapsed.TotalHours >= 1
+                ? elapsed.ToString(@"hh\:mm\:ss")
+                : elapsed.ToString(@"mm\:ss");
+        }
+
+        private void ScheduleSave()
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await SaveAsync().ConfigureAwait(false);
+                }
+                catch
+                {
+                    // ignore persistence errors during background saves
+                }
+            });
         }
         #endregion
 
         #region Вспомогательные методы
+
         private void OnTimerTick()
         {
-            // Пока ничего не делаем каждую секунду, можно добавить индикацию.
+            if (!IsTimerRunning || CurrentTask == null || !_timerStartTime.HasValue)
+            {
+                return;
+            }
+
+            var elapsed = DateTime.Now - _timerStartTime.Value;
+            Application.Current?.Dispatcher?.Invoke(() =>
+            {
+                UpdateRunningTimerVisuals(elapsed);
+            });
         }
 
         /// <summary>
         /// Генерирует следующий доступный ID для компании
         /// </summary>
+        
+        private void OnApplicationExit(object? sender, ExitEventArgs e)
+        {
+            try
+            {
+                _timer.Stop();
+                SaveAsync().GetAwaiter().GetResult();
+            }
+            catch
+            {
+                // ignore errors on shutdown
+            }
+        }
+
         private int GetNextCompanyId()
         {
             return Companies.Any() ? Companies.Max(c => c.Id) + 1 : 1;
@@ -1538,25 +1765,33 @@ namespace BIMinPersonalCRM.ViewModels
         {
             var culture = CultureInfo.CurrentCulture;
             var startDate = GetStatisticsStartDate();
+            var snapshot = _statisticsService.BuildSnapshot(Companies.Select(c => c.ToDto()), startDate);
 
-            var orders = Companies
-                .SelectMany(company => company.Orders, (company, order) => new { company, order })
-                .Where(x => !startDate.HasValue || x.order.CreatedDate.Date >= startDate.Value)
-                .ToList();
+            UpdateRevenueTrendSeries(snapshot.MonthlyRevenue, culture);
+            UpdateOrdersByStatusSeries(snapshot.OrdersByStatus, culture);
+            UpdateTasksStatusSeries(snapshot.TasksByStatus, culture);
+            UpdateRevenueByCompanySeries(snapshot.RevenueByCompany, culture);
+            UpdateCompanyRevenueSummaries(snapshot.CompanySummaries);
 
-            var monthlyRevenue = orders
-                .GroupBy(x => new DateTime(x.order.CreatedDate.Year, x.order.CreatedDate.Month, 1))
-                .OrderBy(g => g.Key)
-                .Select(g => new { Month = g.Key, Revenue = g.Sum(x => x.order.Price) })
-                .ToList();
+            ApplyStatisticsSort();
+            CompanyRevenueView?.Refresh();
+        }
 
-            RevenueTrendSeries?.Clear();
+        private void RefreshStatistics()
+        {
+            RefreshStatisticsDashboard();
+        }
 
-            if (monthlyRevenue.Any())
+        private void UpdateRevenueTrendSeries(IReadOnlyList<MonthlyRevenuePoint> data, CultureInfo culture)
+        {
+            var series = RevenueTrendSeries;
+            series.Clear();
+
+            if (data != null && data.Count > 0)
             {
-                RevenueTrendSeries.Add(new LineSeries<double>
+                series.Add(new LineSeries<double>
                 {
-                    Values = monthlyRevenue.Select(m => m.Revenue).ToArray(),
+                    Values = data.Select(point => point.Revenue).ToArray(),
                     Fill = null,
                     GeometrySize = 8,
                     Stroke = new SolidColorPaint(new SKColor(33, 150, 243), 3),
@@ -1566,17 +1801,22 @@ namespace BIMinPersonalCRM.ViewModels
                     DataLabelsSize = 12,
                     DataLabelsFormatter = point => point.Coordinate.PrimaryValue.ToString("N0", culture)
                 });
+
+                RevenueTrendXAxis = new[]
+                {
+                    new Axis
+                    {
+                        Labels = data.Select(point => point.Month.ToString("MMM yyyy", culture)).ToArray(),
+                        LabelsRotation = 15,
+                        TextSize = 12
+                    }
+                };
+            }
+            else
+            {
+                RevenueTrendXAxis = Array.Empty<Axis>();
             }
 
-            RevenueTrendXAxis = new[]
-            {
-                new Axis
-                {
-                    Labels = monthlyRevenue.Select(m => m.Month.ToString("MMM yyyy", culture)).ToArray(),
-                    LabelsRotation = 15,
-                    TextSize = 12
-                }
-            };
             RevenueTrendYAxis = new[]
             {
                 new Axis
@@ -1585,37 +1825,40 @@ namespace BIMinPersonalCRM.ViewModels
                     TextSize = 12
                 }
             };
+        }
 
-            var statusData = orders
-                .GroupBy(x => x.order.ExecutionStatus)
-                .Select(g => new { Status = g.Key, Count = g.Count() })
-                .OrderBy(g => g.Status)
-                .ToList();
+        private void UpdateOrdersByStatusSeries(IReadOnlyList<OrderStatusPoint> data, CultureInfo culture)
+        {
+            var series = OrdersByStatusSeries;
+            series.Clear();
 
-            OrdersByStatusSeries?.Clear();
-
-            if (statusData.Any())
+            if (data != null && data.Count > 0)
             {
-                OrdersByStatusSeries.Add(new ColumnSeries<int>
+                series.Add(new ColumnSeries<int>
                 {
-                    Values = statusData.Select(s => s.Count).ToArray(),
+                    Values = data.Select(point => point.Count).ToArray(),
                     Fill = new SolidColorPaint(new SKColor(30, 136, 229, 180)),
                     Stroke = new SolidColorPaint(new SKColor(30, 136, 229)),
                     DataLabelsPaint = new SolidColorPaint(new SKColor(55, 71, 79)),
                     DataLabelsSize = 12,
                     DataLabelsFormatter = point => point.Coordinate.PrimaryValue.ToString("N0", culture)
                 });
+
+                OrdersByStatusXAxis = new[]
+                {
+                    new Axis
+                    {
+                        Labels = data.Select(point => point.Status.GetDescription()).ToArray(),
+                        LabelsRotation = 15,
+                        TextSize = 12
+                    }
+                };
+            }
+            else
+            {
+                OrdersByStatusXAxis = Array.Empty<Axis>();
             }
 
-            OrdersByStatusXAxis = new[]
-            {
-                new Axis
-                {
-                    Labels = statusData.Select(s => s.Status.GetDescription()).ToArray(),
-                    LabelsRotation = 15,
-                    TextSize = 12
-                }
-            };
             OrdersByStatusYAxis = new[]
             {
                 new Axis
@@ -1624,43 +1867,40 @@ namespace BIMinPersonalCRM.ViewModels
                     TextSize = 12
                 }
             };
+        }
 
-            IEnumerable<TaskVM> tasksQuery = Companies.SelectMany(company => company.Orders).SelectMany(order => order.Tasks);
-            if (startDate.HasValue)
+        private void UpdateTasksStatusSeries(IReadOnlyList<TaskStatusPoint> data, CultureInfo culture)
+        {
+            var series = TasksStatusSeries;
+            series.Clear();
+
+            if (data != null && data.Count > 0)
             {
-                tasksQuery = tasksQuery.Where(task => task.StartDate >= startDate.Value);
-            }
-
-            var tasksData = tasksQuery
-                .GroupBy(task => task.Status)
-                .Select(g => new { Status = g.Key, Hours = g.Sum(t => t.HoursSpent) })
-                .OrderBy(g => g.Status)
-                .ToList();
-
-            TasksStatusSeries?.Clear();
-
-            if (tasksData.Any())
-            {
-                TasksStatusSeries.Add(new ColumnSeries<double>
+                series.Add(new ColumnSeries<double>
                 {
-                    Values = tasksData.Select(t => t.Hours).ToArray(),
+                    Values = data.Select(point => point.Hours).ToArray(),
                     Fill = new SolidColorPaint(new SKColor(76, 175, 80, 180)),
                     Stroke = new SolidColorPaint(new SKColor(56, 142, 60)),
                     DataLabelsPaint = new SolidColorPaint(new SKColor(55, 71, 79)),
                     DataLabelsSize = 12,
                     DataLabelsFormatter = point => point.Coordinate.PrimaryValue.ToString("N1", culture)
                 });
+
+                TasksStatusXAxis = new[]
+                {
+                    new Axis
+                    {
+                        Labels = data.Select(point => point.Status.GetDescription()).ToArray(),
+                        LabelsRotation = 15,
+                        TextSize = 12
+                    }
+                };
+            }
+            else
+            {
+                TasksStatusXAxis = Array.Empty<Axis>();
             }
 
-            TasksStatusXAxis = new[]
-            {
-                new Axis
-                {
-                    Labels = tasksData.Select(t => t.Status.GetDescription()).ToArray(),
-                    LabelsRotation = 15,
-                    TextSize = 12
-                }
-            };
             TasksStatusYAxis = new[]
             {
                 new Axis
@@ -1669,82 +1909,60 @@ namespace BIMinPersonalCRM.ViewModels
                     TextSize = 12
                 }
             };
+        }
 
-            RevenueByCompanySeries?.Clear();
+        private void UpdateRevenueByCompanySeries(IReadOnlyList<NamedValue> data, CultureInfo culture)
+        {
+            var series = RevenueByCompanySeries;
+            series.Clear();
 
-            var revenueByCompany = orders
-                .GroupBy(x => x.company.Name)
-                .Select(g => new { Name = g.Key, Revenue = g.Sum(item => item.order.Price) })
-                .OrderByDescending(x => x.Revenue)
-                .ToList();
-
-            if (revenueByCompany.Any())
+            if (data == null || data.Count == 0)
             {
-                var topCompanies = revenueByCompany.Take(7).ToList();
-                var otherRevenue = revenueByCompany.Skip(7).Sum(x => x.Revenue);
-                if (otherRevenue > 0)
-                {
-                    topCompanies.Add(new { Name = "Прочие", Revenue = otherRevenue });
-                }
-
-                foreach (var item in topCompanies.Where(x => x.Revenue > 0))
-                {
-                    RevenueByCompanySeries.Add(new PieSeries<double>
-                    {
-                        Values = new[] { item.Revenue },
-                        Name = item.Name,
-                        DataLabelsPaint = new SolidColorPaint(new SKColor(33, 33, 33)),
-                        DataLabelsSize = 12,
-                        DataLabelsFormatter = point => point.Coordinate.PrimaryValue.ToString("N0", culture),
-                        Pushout = topCompanies.Count > 1 ? 4 : 0
-                    });
-                }
-
-                if (topCompanies.All(x => x.Revenue == 0))
-                {
-                    RevenueByCompanySeries.Add(new PieSeries<double>
-                    {
-                        Values = new[] { 1d },
-                        Name = "Нет данных",
-                        DataLabelsPaint = new SolidColorPaint(new SKColor(33, 33, 33)),
-                        DataLabelsSize = 12,
-                        DataLabelsFormatter = _ => string.Empty
-                    });
-                }
+                return;
             }
 
-            CompanyRevenueSummaries?.Clear();
+            var meaningfulValues = data.Where(item => item.Value > 0).ToList();
 
-            foreach (var company in Companies)
+            foreach (var item in meaningfulValues)
             {
-                var companyOrders = company.Orders
-                    .Where(order => !startDate.HasValue || order.CreatedDate.Date >= startDate.Value)
-                    .ToList();
-
-                var totalRevenue = companyOrders.Sum(o => o.Price);
-                var totalHours = companyOrders.SelectMany(o => o.Tasks).Sum(t => t.HoursSpent);
-
-                var summary = new CompanyRevenueSummary
+                series.Add(new PieSeries<double>
                 {
-                    CompanyName = company.Name,
-                    OrdersCount = companyOrders.Count,
-                    ActiveOrdersCount = companyOrders.Count(o => o.ExecutionStatus is OrderExecutionStatus.InProgress or OrderExecutionStatus.Testing or OrderExecutionStatus.AwaitingPayment),
-                    CompletedOrdersCount = companyOrders.Count(o => o.ExecutionStatus == OrderExecutionStatus.Paid),
-                    TotalRevenue = totalRevenue,
-                    AverageOrderValue = companyOrders.Count > 0 ? totalRevenue / companyOrders.Count : 0,
-                    TotalHours = totalHours,
-                    AverageRate = totalHours > 0 ? totalRevenue / totalHours : 0,
-                    Profitability = company.AverageProfitability,
-                    Relationship = company.RelationshipStatus.GetDescription(),
-                    PaymentAbility = company.PaymentAbilityStatus.GetDescription(),
-                    LastOrderDate = companyOrders.Any() ? companyOrders.Max(o => (DateTime?)o.CreatedDate) : null
-                };
-
-                CompanyRevenueSummaries.Add(summary);
+                    Values = new[] { item.Value },
+                    Name = item.Name,
+                    DataLabelsPaint = new SolidColorPaint(new SKColor(33, 33, 33)),
+                    DataLabelsSize = 12,
+                    DataLabelsFormatter = point => point.Coordinate.PrimaryValue.ToString("N0", culture),
+                    Pushout = data.Count > 1 ? 4 : 0
+                });
             }
 
-            ApplyStatisticsSort();
-            CompanyRevenueView?.Refresh();
+            if (!meaningfulValues.Any())
+            {
+                series.Add(new PieSeries<double>
+                {
+                    Values = new[] { 1d },
+                    Name = "Нет данных",
+                    DataLabelsPaint = new SolidColorPaint(new SKColor(33, 33, 33)),
+                    DataLabelsSize = 12,
+                    DataLabelsFormatter = _ => string.Empty
+                });
+            }
+        }
+
+        private void UpdateCompanyRevenueSummaries(IReadOnlyList<CompanyRevenueSummary> summaries)
+        {
+            var collection = CompanyRevenueSummaries;
+            collection.Clear();
+
+            if (summaries == null)
+            {
+                return;
+            }
+
+            foreach (var summary in summaries)
+            {
+                collection.Add(summary);
+            }
         }
 
         private DateTime? GetStatisticsStartDate()
@@ -1827,6 +2045,7 @@ namespace BIMinPersonalCRM.ViewModels
 
     public record StatisticsSortOption(string DisplayName, string PropertyName, ListSortDirection Direction);
 }
+
 
 
 
